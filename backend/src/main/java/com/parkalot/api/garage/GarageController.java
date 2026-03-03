@@ -14,7 +14,7 @@ public class GarageController {
   }
 
   @GetMapping("/garages")
-  public List<Garage> getMethodName() {
+  public List<GarageDto> getMethodName() {
     var response = service.GetAllGarages();
     return response;
   }

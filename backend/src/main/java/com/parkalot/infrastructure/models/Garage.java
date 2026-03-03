@@ -17,6 +17,8 @@ public class Garage {
   public Address Address;
 
   public String getFormattedAddress() {
+    if (Address == null) return "";
+
     return this.Address.toString();
   }
 }

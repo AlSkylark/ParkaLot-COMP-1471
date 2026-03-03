@@ -13,11 +13,11 @@ public class GarageService {
     this.repo = repo;
   }
 
-  public List<Garage> GetAllGarages() {
+  public List<GarageDto> GetAllGarages() {
     var list = repo.GetAll();
-    var result = new ArrayList<Garage>();
+    var result = new ArrayList<GarageDto>();
     list.forEach(a -> {
-      result.add(new Garage(a.Id, a.Name, a.getFormattedAddress()));
+      result.add(new GarageDto(a.Id, a.Name, a.getFormattedAddress()));
     });
 
     return result;
