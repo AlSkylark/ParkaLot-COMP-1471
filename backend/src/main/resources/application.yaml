@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dev_parkalot
+    username: postgres
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    
+server:
+  port: 8080
+  
