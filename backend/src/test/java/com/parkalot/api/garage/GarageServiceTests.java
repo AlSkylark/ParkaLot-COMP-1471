@@ -30,13 +30,13 @@ public class GarageServiceTests {
   @Test
   void GetAllGarages_CallsRepositoryAndCreatesDtos_Correctly() {
     //arrange
-    when(fakeRepo.GetAll()).thenReturn(GetFakeGarages());
+    when(fakeRepo.findAll()).thenReturn(GetFakeGarages());
 
     //act
     var result = service.GetAllGarages();
 
     //assert
-    verify(fakeRepo, times(1)).GetAll();
+    verify(fakeRepo, times(1)).findAll();
     assertThat(result).hasSize(2);
     assertThat(result.getFirst().name()).isEqualTo("Test1");
     assertThat(result.getFirst().address()).isEqualTo("");

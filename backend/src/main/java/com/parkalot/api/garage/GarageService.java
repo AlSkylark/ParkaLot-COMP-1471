@@ -14,7 +14,7 @@ public class GarageService {
   }
 
   public List<GarageDto> GetAllGarages() {
-    var list = repo.GetAll();
+    var list = repo.findAll();
     var result = new ArrayList<GarageDto>();
     list.forEach(a -> {
       result.add(new GarageDto(a.Id, a.Name, a.getFormattedAddress()));
