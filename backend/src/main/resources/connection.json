@@ -1,0 +1,13 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "aiven",
+            "Group": "parkalot",
+            "Host": "parkalot-database-parkalot-database.l.aivencloud.com",
+            "Port": 23675,
+            "MaintenanceDB": "defaultdb",
+            "Username": "avnadmin",
+            "SSLMode": "require"
+        }
+    }
+}
