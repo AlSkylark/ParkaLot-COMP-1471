@@ -31,17 +31,17 @@ public class CustomerController {
 
   @GetMapping("/profile")
   public ResponseEntity<?> getMethodName() {
-    var auth = SecurityContextHolder.getContext().getAuthentication();
-    if (auth == null || !auth.isAuthenticated()) {
+    var userAuth = SecurityContextHolder.getContext().getAuthentication();
+    if (userAuth == null || !userAuth.isAuthenticated()) {
       return ResponseEntity.status(401).build();
     }
 
-    var customer = service.GetCustomer(auth.getName());
+    var customer = service.GetCustomer(userAuth.getName());
     return ResponseEntity.ok(customer);
   }
 
-  @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody String email) {
+  @PostMapping("/signin")
+  public ResponseEntity<?> signin(@RequestBody String email) {
     try {
       auth.loadUserByUsername(email);
     } catch (UsernameNotFoundException e) {
