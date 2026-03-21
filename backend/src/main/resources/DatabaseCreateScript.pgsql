@@ -13,7 +13,7 @@ CREATE TABLE Customers (
     LastName VARCHAR(255) NOT NULL,
     Title INT,
     Email VARCHAR(255) NOT NULL UNIQUE,
-    IsCorporate BOOLEAN,
+    IsCorporate BOOLEAN NOT NULL,
     AddressId INT REFERENCES Addresses(Id)
 );
 
