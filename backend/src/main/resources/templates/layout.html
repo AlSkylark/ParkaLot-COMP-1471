@@ -1,0 +1,12 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+  <head>
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}" />
+    <script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+  </head>
+  <body>
+    <div th:replace="~{header}"></div>
+
+    <div th:replace="${content}"></div>
+  </body>
+</html>
