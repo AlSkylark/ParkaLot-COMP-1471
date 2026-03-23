@@ -21,6 +21,7 @@ CREATE TABLE Cars (
     Id SERIAL PRIMARY KEY,
     PlateNo VARCHAR(20) NOT NULL,
     CustomerId INT NOT NULL,
+    cartype INT,
     CONSTRAINT FK_CustomerCar FOREIGN KEY (CustomerId) REFERENCES Customers(Id),
     CONSTRAINT UC_CarCustomer UNIQUE (CustomerId, PlateNo)
 );
@@ -44,15 +45,14 @@ CREATE TABLE ParkingSpaces (
     Code VARCHAR(10) NOT NULL UNIQUE,
     LocationFloor VARCHAR(2) NOT NULL,
     LocationId INT NOT NULL,
+    spacetype INT,
     CONSTRAINT FK_SpaceLocation FOREIGN KEY (LocationId) REFERENCES Garages(Id)
 );
 
 CREATE TABLE SensorDevice (
     Id SERIAL PRIMARY KEY,
     SensorStatus INT NOT NULL,
-    LocationId INT NOT NULL,
     ParkingSpaceId INT NOT NULL,
-    CONSTRAINT FK_SensorLocation FOREIGN KEY (LocationId) REFERENCES Garages(Id),
     CONSTRAINT FK_SensorSpace FOREIGN KEY (ParkingSpaceId) REFERENCES ParkingSpaces(Id)
 );
 
