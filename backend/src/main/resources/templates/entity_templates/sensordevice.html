@@ -1,0 +1,109 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div
+            th:replace="~{entity_templates/items_list :: item_list('sensor device', ~{::new_sensor_device}, ${list}, ~{::sensor_device}, ~{::sensor_device_label})}"
+        >
+            <div th:fragment="new_sensor_device">
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select
+                                class="form-select"
+                                name="status"
+                                id="new_status_dropdown"
+                            >
+                                <option value="">-- Select Status --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Parking Space</label>
+                            <select
+                                class="form-select"
+                                name="parkingSpace.id"
+                                id="new_parking_space_dropdown"
+                            >
+                                <option value="">
+                                    -- Select Parking Space --
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="sensor_device">
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select
+                                class="form-select"
+                                name="status"
+                                th:attr="id=|status_dropdown${item.id}|"
+                                th:data-current-status="${item.status}"
+                            >
+                                <option value="">-- Select Status --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Parking Space</label>
+                            <select
+                                class="form-select"
+                                name="parkingSpace.id"
+                                th:attr="id=|parking_space_dropdown${item.id}|"
+                                th:data-current-parking-space="${item.parkingSpace != null ? item.parkingSpace.id : ''}"
+                            >
+                                <option value="">
+                                    -- Select Parking Space --
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="sensor_device_label">
+                <span
+                    th:if="${item.status != null}"
+                    th:with="status=${T(com.parkalot.infrastructure.enums.SensorStatus).values()[item.status]}"
+                    th:text="${status.label}"
+                    th:classappend="${item.status == 0 ? 'badge bg-success' : 
+                                       item.status == 1 ? 'badge bg-danger' : 
+                                       item.status == 2 ? 'badge bg-warning' : 
+                                       'badge bg-secondary'}"
+                >
+                </span>
+                <span
+                    th:if="${item.parkingSpace != null}"
+                    class="text-muted ms-2"
+                    th:text="${item.parkingSpace.code}"
+                ></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", async function () {
+        const [statuses, parkingSpaces] = await Promise.all([
+            fetch("/enums/sensor-statuses").then((r) => r.json()),
+            fetch("/parking-spaces/dropdown").then((r) => r.json()),
+        ]);
+
+        populateDropdowns(
+            '[id^="status_dropdown"], #new_status_dropdown',
+            statuses,
+            "currentStatus",
+        );
+        populateDropdowns(
+            '[id^="parking_space_dropdown"], #new_parking_space_dropdown',
+            parkingSpaces,
+            "currentParkingSpace",
+        );
+    });
+</script>

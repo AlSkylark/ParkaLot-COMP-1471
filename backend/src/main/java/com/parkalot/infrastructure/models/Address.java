@@ -1,29 +1,32 @@
 package com.parkalot.infrastructure.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "addresses")
-public class Address {
+public class Address extends BaseModel {
 
-  @Id
-  int Id;
-
-  String Address1;
-  String Address2;
-  String Postcode;
-  String Town;
-  String Country;
+  private String address1;
+  private String address2;
+  private String postcode;
+  private String town;
+  private String country;
 
   @Override
   public String toString() {
     return (
-      this.Address1 +
+      this.address1 +
       ", " +
-      AddPart(this.Address2) +
-      AddPart(this.Postcode) +
-      AddPart(this.Town) +
-      this.Country
+      AddPart(this.address2) +
+      AddPart(this.postcode) +
+      AddPart(this.town) +
+      this.country
     );
   }
 

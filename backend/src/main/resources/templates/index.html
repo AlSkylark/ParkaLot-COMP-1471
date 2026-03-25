@@ -1,18 +1,18 @@
 <div th:replace="~{ layout :: layout(~{::content}) }">
-  <div th:fragment="content" class="container">
-    <h2>Management</h2>
-    <div th:each="item : ${internal_admin_items}">
-      <div class="card mb-2">
-        <div class="card-body">
-          <h5 class="card-title" th:text="${item.name}"></h5>
-          <a
-            th:href="@{${item.dbName}}"
-            class="btn btn-primary"
-            th:text="'View ' + ${item.name}"
-            >View</a
-          >
+    <div th:fragment="content" class="container p-3">
+        <h2>Management</h2>
+        <div th:each="item : ${internal_admin_items}">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${item.value.label}"></h5>
+                    <a
+                        th:href="@{'edit/' + ${item.key}}"
+                        class="btn btn-primary"
+                        th:text="'View ' + ${item.value.label}"
+                        >View</a
+                    >
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>

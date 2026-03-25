@@ -1,0 +1,101 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div
+            th:replace="~{entity_templates/items_list :: item_list('scanner', ~{::new_scanner}, ${list}, ~{::scanner}, ~{::scanner_label})}"
+        >
+            <div th:fragment="new_scanner">
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Scanner Type</label>
+                            <select
+                                class="form-select"
+                                name="scannerType"
+                                id="new_scanner_type_dropdown"
+                            >
+                                <option value="">-- Select Type --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Garage</label>
+                            <select
+                                class="form-select"
+                                name="garage.id"
+                                id="new_garage_dropdown"
+                            >
+                                <option value="">-- Select Garage --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="scanner">
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Scanner Type</label>
+                            <select
+                                class="form-select"
+                                name="scannerType"
+                                th:attr="id=|scanner_type_dropdown${item.id}|"
+                                th:data-current-scanner-type="${item.scannerType}"
+                            >
+                                <option value="">-- Select Type --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Garage</label>
+                            <select
+                                class="form-select"
+                                name="garage.id"
+                                th:attr="id=|garage_dropdown${item.id}|"
+                                th:data-current-garage="${item.garage != null ? item.garage.id : ''}"
+                            >
+                                <option value="">-- Select Garage --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="scanner_label">
+                <span
+                    th:if="${item.garage != null}"
+                    class="text-muted ms-2"
+                    th:text="${item.garage.name}"
+                ></span>
+                <span
+                    class="badge bg-primary ms-2"
+                    th:if="${item.scannerType != null}"
+                    th:text="${T(com.parkalot.infrastructure.enums.ScannerType).values()[item.scannerType].label}"
+                >
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", async function () {
+        const [scannerTypes, garages] = await Promise.all([
+            fetch("/enums/scanner-types").then((r) => r.json()),
+            fetch("/garages/dropdown").then((r) => r.json()),
+        ]);
+
+        populateDropdowns(
+            '[id^="scanner_type_dropdown"], #new_scanner_type_dropdown',
+            scannerTypes,
+            "currentScannerType",
+        );
+        populateDropdowns(
+            '[id^="garage_dropdown"], #new_garage_dropdown',
+            garages,
+            "currentGarage",
+        );
+    });
+</script>

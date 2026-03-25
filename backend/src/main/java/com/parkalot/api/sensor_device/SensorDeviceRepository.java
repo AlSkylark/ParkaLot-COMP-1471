@@ -1,7 +1,6 @@
 package com.parkalot.api.sensor_device;
 
+import com.parkalot.api.BaseRepository;
 import com.parkalot.infrastructure.models.SensorDevice;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SensorDeviceRepository
-  extends JpaRepository<SensorDevice, Integer> {}
+public interface SensorDeviceRepository extends BaseRepository<SensorDevice> {}

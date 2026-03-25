@@ -1,0 +1,158 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div
+            th:replace="~{entity_templates/items_list :: item_list('parkingspace', ~{::new_parking_space}, ${list}, ~{::parking_space}, ~{::parking_space_label})}"
+        >
+            <div th:fragment="new_parking_space">
+                <!-- Code + Floor -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Code</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="code"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Floor</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="floor"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Space Type + Garage -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Space Type</label>
+                            <select
+                                class="form-select"
+                                name="spaceType"
+                                id="new_space_type_dropdown"
+                            >
+                                <option value="">-- Select Type --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Garage</label>
+                            <select
+                                class="form-select"
+                                name="garage.id"
+                                id="new_garage_dropdown"
+                            >
+                                <option value="">-- Select Garage --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="parking_space">
+                <!-- Code + Floor -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Code</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="code"
+                                th:value="${item.code}"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Floor</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="floor"
+                                th:value="${item.floor}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Space Type + Garage -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Space Type</label>
+                            <select
+                                class="form-select"
+                                name="spaceType"
+                                th:attr="id=|space_type_dropdown${item.id}|"
+                                th:data-current-space-type="${item.spaceType}"
+                            >
+                                <option value="">-- Select Type --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Garage</label>
+                            <select
+                                class="form-select"
+                                name="garage.id"
+                                th:attr="id=|garage_dropdown${item.id}|"
+                                th:data-current-garage="${item.garage != null ? item.garage.id : ''}"
+                            >
+                                <option value="">-- Select Garage --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="parking_space_label">
+                <span th:text="${item.code}"></span>
+                <span
+                    class="text-muted ms-2"
+                    th:text="${item.floor != null ? 'Floor ' + item.floor : ''}"
+                ></span>
+                <span
+                    th:if="${item.spaceType != null}"
+                    class="badge bg-secondary ms-2"
+                    th:text="${T(com.parkalot.infrastructure.models.enums.SpaceType).values()[item.spaceType].label}"
+                >
+                </span>
+                <span
+                    th:if="${item.garage != null}"
+                    class="text-muted ms-2"
+                    th:text="${item.garage.name}"
+                ></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", async function () {
+        const [spaceTypes, garages] = await Promise.all([
+            fetch("/enums/space-types").then((r) => r.json()),
+            fetch("/garages/dropdown").then((r) => r.json()),
+        ]);
+
+        populateDropdowns(
+            '[id^="space_type_dropdown"], #new_space_type_dropdown',
+            spaceTypes,
+            "currentSpaceType",
+        );
+        populateDropdowns(
+            '[id^="garage_dropdown"], #new_garage_dropdown',
+            garages,
+            "currentGarage",
+        );
+    });
+</script>

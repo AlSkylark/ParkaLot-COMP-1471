@@ -1,0 +1,142 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div
+            th:replace="~{entity_templates/items_list :: item_list('address', ~{::new_address}, ${list}, ~{::address}, ~{::address_label})}"
+        >
+            <div th:fragment="new_address">
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 1</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="address1"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 2</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="address2"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Town</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="town"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Postcode</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="postcode"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Country</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="country"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="address">
+                <!-- Address Lines -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 1</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="address1"
+                                th:value="${item.address1}"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 2</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="address2"
+                                th:value="${item.address2}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Town + Postcode -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Town</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="town"
+                                th:value="${item.town}"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Postcode</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="postcode"
+                                th:value="${item.postcode}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Country -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Country</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="country"
+                                th:value="${item.country}"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="address_label">
+                <span th:text="${item.address1}"></span>,
+                <span th:text="${item.address2}"></span>,
+                <span th:text="${item.town}"></span>,
+                <span th:text="${item.postcode}"></span>
+            </div>
+        </div>
+    </div>
+</div>

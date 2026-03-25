@@ -1,0 +1,212 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div
+            th:replace="~{entity_templates/items_list :: item_list('customer', ~{::new_customer}, ${list}, ~{::customer}, ~{::customer_label})}"
+        >
+            <div th:fragment="new_customer">
+                <!-- Title + Name -->
+                <div class="row">
+                    <div class="col-2">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <select
+                                class="form-select"
+                                name="title"
+                                id="new_title_dropdown"
+                            >
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">First Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="firstName"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="lastName"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email + Corporate -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input
+                                type="email"
+                                class="form-control"
+                                name="email"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-auto d-flex align-items-center mt-2">
+                        <div class="form-check">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                name="isCorporate"
+                                id="new_isCorporate"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="new_isCorporate"
+                                >Corporate</label
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <select
+                                class="form-select"
+                                name="address.id"
+                                id="new_address_dropdown"
+                            >
+                                <option value="">-- Select Address --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="customer">
+                <!-- Title + Name -->
+                <div class="row">
+                    <div class="col-2">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <select
+                                class="form-select"
+                                name="title"
+                                th:attr="id=|title_dropdown${item.id}|"
+                                th:data-current-title="${item.title}"
+                            >
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">First Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="firstName"
+                                th:value="${item.firstName}"
+                            />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="lastName"
+                                th:value="${item.lastName}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email + Corporate -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input
+                                type="email"
+                                class="form-control"
+                                name="email"
+                                th:value="${item.email}"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-auto d-flex align-items-center mt-2">
+                        <div class="form-check">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                name="isCorporate"
+                                th:attr="id=|isCorporate${item.id}|"
+                                th:checked="${item.isCorporate}"
+                            />
+                            <label
+                                class="form-check-label"
+                                th:attr="for=|isCorporate${item.id}|"
+                                >Corporate</label
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address dropdown -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <select
+                                class="form-select"
+                                name="address.id"
+                                th:attr="id=|address_dropdown${item.id}|"
+                                th:data-current-address="${item.address != null ? item.address.id : ''}"
+                            >
+                                <option value="">-- Select Address --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:fragment="customer_label">
+                <span
+                    th:if="${item.title != null}"
+                    th:text="${T(com.parkalot.infrastructure.enums.Title).values()[item.title].label}"
+                >
+                </span>
+                <span th:text="${item.firstName}"></span>
+                <span th:text="${item.lastName}"></span>
+                <span th:if="${item.isCorporate}" class="badge bg-primary ms-2"
+                    >Corporate</span
+                >
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", async function () {
+        const [addresses, titles] = await Promise.all([
+            fetch("/addresses/dropdown").then((r) => r.json()),
+            fetch("/enums/titles").then((r) => r.json()),
+        ]);
+
+        populateDropdowns(
+            '[id^="address_dropdown"], #new_address_dropdown',
+            addresses,
+            "currentAddress",
+        );
+        populateDropdowns(
+            '[id^="title_dropdown"], #new_title_dropdown',
+            titles,
+            "currentTitle",
+        );
+    });
+</script>
