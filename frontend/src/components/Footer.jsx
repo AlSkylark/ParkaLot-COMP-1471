@@ -1,9 +1,10 @@
+import { checkedSignedIn } from "../services/customerService";
+
 function Footer() {
   return (
     <footer className="bg-dark text-white pt-4 pb-2 mt-auto">
       <div className="container">
         <div className="row text-center text-md-start">
-
           {/* Brand */}
           <div className="col-md-4 mb-3">
             <h5 className="fw-bold">ParkaLot</h5>
@@ -16,9 +17,32 @@ function Footer() {
           <div className="col-md-4 mb-3">
             <h6 className="fw-bold">Quick Links</h6>
             <ul className="list-unstyled">
-              <li><a href="/" className="text-white text-decoration-none">Home</a></li>
-              <li><a href="/booking" className="text-white text-decoration-none">Booking</a></li>
-              <li><a href="/login" className="text-white text-decoration-none">Login</a></li>
+              <li>
+                <a href="/" className="text-white text-decoration-none">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="/booking" className="text-white text-decoration-none">
+                  Booking
+                </a>
+              </li>
+              {checkedSignedIn() ? (
+                <li>
+                  <a
+                    href="/profile"
+                    className="text-white text-decoration-none"
+                  >
+                    Profile
+                  </a>
+                </li>
+              ) : (
+                <li>
+                  <a href="/login" className="text-white text-decoration-none">
+                    Login
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -28,7 +52,6 @@ function Footer() {
             <p className="small mb-1">support@parkalot.com</p>
             <p className="small">London, UK</p>
           </div>
-
         </div>
 
         <hr className="border-secondary" />
