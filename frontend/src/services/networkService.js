@@ -1,4 +1,4 @@
-const getUrlBase = () => "/api";
+const getUrlBase = () => `${import.meta.env.VITE_API_URL || ""}/api`;
 
 export async function get(endpoint, params, request) {
   const res = await fetch(`${getUrlBase()}/${endpoint}`, request);
