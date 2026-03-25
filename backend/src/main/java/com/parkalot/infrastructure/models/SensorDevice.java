@@ -1,17 +1,23 @@
 package com.parkalot.infrastructure.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Entity
-public class SensorDevice {
+@Table(name = "sensordevice")
+public class SensorDevice extends BaseModel {
 
-  @Id
-  int Id;
-
-  int Status;
+  @Column(name = "sensorstatus")
+  Integer Status;
 
   @OneToOne
   @JoinColumn(name = "parkingspaceid")

@@ -45,12 +45,12 @@ public class GarageServiceTests {
   private List<Garage> GetFakeGarages() {
     var list = new ArrayList<Garage>();
     var garage1 = new Garage();
-    garage1.Id = 1;
-    garage1.Name = "Test1";
+    garage1.setId(1);
+    garage1.setName("Test1");
 
     var garage2 = new Garage();
-    garage2.Id = 2;
-    garage2.Name = "Test2";
+    garage2.setId(2);
+    garage2.setName("Test2");
 
     list.add(garage1);
     list.add(garage2);

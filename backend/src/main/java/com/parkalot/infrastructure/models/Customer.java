@@ -2,20 +2,22 @@ package com.parkalot.infrastructure.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "customers")
-public class Customer {
-
-  @Id
-  public int Id;
+public class Customer extends BaseModel {
 
   @Column
   public String Email;
@@ -27,7 +29,7 @@ public class Customer {
   public String LastName;
 
   @Column
-  public String Title;
+  public Integer Title;
 
   @Column(name = "iscorporate")
   public boolean IsCorporate;

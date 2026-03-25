@@ -3,13 +3,16 @@ package com.parkalot.infrastructure.models;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "garages")
-public class Garage {
-
-  @Id
-  public int Id;
+public class Garage extends BaseModel {
 
   @Column(name = "locationname")
   public String Name;

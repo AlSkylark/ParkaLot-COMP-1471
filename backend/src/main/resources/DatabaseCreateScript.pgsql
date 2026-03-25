@@ -35,7 +35,7 @@ CREATE TABLE Garages (
 
 CREATE TABLE Scanner (
     Id SERIAL PRIMARY KEY,
-    ScannerType VARCHAR(20) NOT NULL,
+    ScannerType INT NOT NULL,
     LocationId INT NOT NULL,
     CONSTRAINT FK_ScannerLocation FOREIGN KEY (LocationId) REFERENCES Garages(Id)
 );
