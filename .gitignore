@@ -60,3 +60,6 @@ build/
 .DS_Store
 */node_modules/
 */.vscode/
+
+## React dist ##
+frontend/dist/
