@@ -447,7 +447,7 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", async function () {
-        const addresses = await fetch("/addresses/dropdown").then((r) =>
+        const addresses = await fetch("/api/addresses/dropdown").then((r) =>
             r.json(),
         );
         populateDropdowns(

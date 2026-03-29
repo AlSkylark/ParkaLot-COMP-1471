@@ -194,8 +194,8 @@
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", async function () {
         const [addresses, titles] = await Promise.all([
-            fetch("/addresses/dropdown").then((r) => r.json()),
-            fetch("/enums/titles").then((r) => r.json()),
+            fetch("/api/addresses/dropdown").then((r) => r.json()),
+            fetch("/api/enums/titles").then((r) => r.json()),
         ]);
 
         populateDropdowns(

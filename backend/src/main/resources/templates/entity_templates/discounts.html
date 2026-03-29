@@ -149,8 +149,8 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", async function () {
-        const discountTypes = await fetch("/enums/discount-types").then((r) =>
-            r.json(),
+        const discountTypes = await fetch("/api/enums/discount-types").then(
+            (r) => r.json(),
         );
         populateDropdowns(
             '[id^="discount_type_dropdown"], #new_discount_type_dropdown',
