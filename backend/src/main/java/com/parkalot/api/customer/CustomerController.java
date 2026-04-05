@@ -1,6 +1,5 @@
 package com.parkalot.api.customer;
 
-import com.parkalot.infrastructure.annotations.RestApiController;
 import com.parkalot.infrastructure.security.CustomerAuthService;
 import com.parkalot.infrastructure.security.JwtUtil;
 import java.util.Map;
@@ -11,10 +10,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 record SignInRequest(String email) {}
 
-@RestApiController
+@RestController
 public class CustomerController {
 
   private final CustomerAuthService auth;
