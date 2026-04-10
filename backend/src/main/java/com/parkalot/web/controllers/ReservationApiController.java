@@ -7,10 +7,11 @@ import com.parkalot.web.dto.ReservationRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 public class ReservationApiController {
 
     private final SpaceReservationsRepository repo;
@@ -19,30 +20,42 @@ public class ReservationApiController {
         this.repo = repo;
     }
 
+    // RESERVATION
     @PostMapping
-    public Object createReservation(@RequestBody ReservationRequest request) {
+    public Map<String, Object> createReservation(@RequestBody ReservationRequest request) {
 
-        if (request.dateFrom == null || request.dateTo == null) {
-            return Map.of("success", false, "message", "Dates are required");
+        // Basic validation
+        if (request.date == null) {
+            return Map.of(
+                    "success", false,
+                    "message", "Dates are required"
+            );
         }
 
+        // entities
         SpaceReservations reservation = new SpaceReservations();
 
-        reservation.setDateFrom(request.dateFrom);
-        reservation.setDateTo(request.dateTo);
-        reservation.setTimeFrom(request.timeFrom);
-        reservation.setTimeTo(request.timeTo);
-
+        reservation.setDate(request.date);
+        reservation.setTime(request.time);
         reservation.setSpaceId(request.spaceId);
         reservation.setPriceTypeId(request.priceTypeId);
         reservation.setContractId(request.contractId);
+        reservation.setCarId(request.carId);
+
 
         repo.save(reservation);
 
+        // response
         return Map.of(
                 "success", true,
                 "message", "Reservation created successfully",
                 "reservationId", reservation.getId()
         );
+    }
+
+
+    @GetMapping
+    public List<SpaceReservations> getAllReservations() {
+        return repo.findAll();
     }
 }
