@@ -9,6 +9,7 @@ import { checkedSignedIn } from "./services/customerService";
 import Profile from "./pages/Profile";
 import { useAuth } from "./context/AuthContext";
 
+
 function App() {
   const { isLoggedIn } = useAuth();
 
@@ -41,3 +42,4 @@ function App() {
 }
 
 export default App;
+
