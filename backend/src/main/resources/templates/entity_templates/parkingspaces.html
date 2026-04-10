@@ -1,7 +1,7 @@
 <div th:replace="~{ layout :: layout(~{::content}) }">
     <div th:fragment="content">
         <div
-            th:replace="~{entity_templates/items_list :: item_list('parkingspace', ~{::new_parking_space}, ${list}, ~{::parking_space}, ~{::parking_space_label})}"
+            th:replace="~{entity_templates/items_list :: item_list('parking space', ~{::new_parking_space}, ${list}, ~{::parking_space}, ~{::parking_space_label})}"
         >
             <div th:fragment="new_parking_space">
                 <!-- Code + Floor -->
@@ -124,7 +124,7 @@
                 <span
                     th:if="${item.spaceType != null}"
                     class="badge bg-secondary ms-2"
-                    th:text="${T(com.parkalot.infrastructure.models.enums.SpaceType).values()[item.spaceType].label}"
+                    th:text="${T(com.parkalot.infrastructure.enums.SpaceType).values()[item.spaceType].label}"
                 >
                 </span>
                 <span
@@ -140,8 +140,8 @@
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", async function () {
         const [spaceTypes, garages] = await Promise.all([
-            fetch("/enums/space-types").then((r) => r.json()),
-            fetch("/garages/dropdown").then((r) => r.json()),
+            fetch("/api/enums/space-types").then((r) => r.json()),
+            fetch("/api/garages/dropdown").then((r) => r.json()),
         ]);
 
         populateDropdowns(

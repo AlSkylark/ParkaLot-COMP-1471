@@ -83,8 +83,8 @@
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", async function () {
         const [scannerTypes, garages] = await Promise.all([
-            fetch("/enums/scanner-types").then((r) => r.json()),
-            fetch("/garages/dropdown").then((r) => r.json()),
+            fetch("/api/enums/scanner-types").then((r) => r.json()),
+            fetch("/api/garages/dropdown").then((r) => r.json()),
         ]);
 
         populateDropdowns(
