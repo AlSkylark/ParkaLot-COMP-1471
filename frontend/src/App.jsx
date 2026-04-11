@@ -10,6 +10,7 @@ import { useAuth } from "./context/AuthContext";
 import Garage from "./pages/Garage";
 import NotFound from "./pages/404";
 
+
 function App() {
     const { isLoggedIn } = useAuth();
 
@@ -56,3 +57,4 @@ function App() {
 }
 
 export default App;
+
