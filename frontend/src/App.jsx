@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, HashRouter } from "react-router-dom";
 import MainLayout from "./Layouts/Mainlayout";
 
 import Home from "./pages/Homepage";
@@ -18,7 +18,7 @@ function App() {
     }
 
     return (
-        <BrowserRouter basename={import.meta.env.VITE_BASE_URL}>
+        <HashRouter>
             <Routes>
                 <Route path="/" element={withLayout(<Home />)} />
                 <Route path="/booking" element={withLayout(<Booking />)} />
@@ -49,9 +49,9 @@ function App() {
                     element={withLayout(<Garage />)}
                 ></Route>
 
-                <Route path="404" element={withLayout(<NotFound />)} />
+                <Route path="/404" element={withLayout(<NotFound />)} />
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 
