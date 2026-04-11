@@ -1,15 +1,14 @@
 import { Routes, Route, Navigate, HashRouter } from "react-router-dom";
-import MainLayout from "./Layouts/Mainlayout";
+import { useAuth } from "./context/AuthContext";
 
+import MainLayout from "./Layouts/Mainlayout";
 import Home from "./pages/Homepage";
-import Booking from "./pages/Bookingpage";
 import Login from "./pages/Loginpage";
 import CreateAccount from "./pages/CreateAccount";
 import Profile from "./pages/Profile";
-import { useAuth } from "./context/AuthContext";
 import Garage from "./pages/Garage";
 import NotFound from "./pages/404";
-
+import Reserve from "./pages/Reserve";
 
 function App() {
     const { isLoggedIn } = useAuth();
@@ -22,7 +21,6 @@ function App() {
         <HashRouter>
             <Routes>
                 <Route path="/" element={withLayout(<Home />)} />
-                <Route path="/booking" element={withLayout(<Booking />)} />
                 <Route
                     path="/create-account"
                     element={withLayout(<CreateAccount />)}
@@ -50,6 +48,11 @@ function App() {
                     element={withLayout(<Garage />)}
                 ></Route>
 
+                <Route
+                    path="/garages/:id/reserve"
+                    element={withLayout(<Reserve />)}
+                />
+
                 <Route path="/404" element={withLayout(<NotFound />)} />
             </Routes>
         </HashRouter>
@@ -57,4 +60,3 @@ function App() {
 }
 
 export default App;
-

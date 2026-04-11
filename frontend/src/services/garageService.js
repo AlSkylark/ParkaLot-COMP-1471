@@ -9,3 +9,13 @@ export async function getGarage(id) {
         return null;
     }
 }
+
+export async function reserve(id, form) {
+    try {
+        const res = await post(`garages/${id}/reserve`, form);
+        return res;
+    } catch (error) {
+        console.error("Could not process reservation");
+        return null;
+    }
+}
