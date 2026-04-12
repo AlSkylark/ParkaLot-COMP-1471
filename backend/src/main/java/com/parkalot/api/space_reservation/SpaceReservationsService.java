@@ -65,6 +65,7 @@ public class SpaceReservationsService {
       availableSpace = parkingSpaceRepo
         .findAvailableSpace(
           garageId,
+          request.spaceTypeId().ordinal(),
           request.startDate(),
           request.startTime(),
           request.endTime()
@@ -72,7 +73,12 @@ public class SpaceReservationsService {
         .getFirst();
     } else {
       availableSpace = parkingSpaceRepo
-        .findAvailableSpace(garageId, request.startDate(), request.endDate())
+        .findAvailableSpace(
+          garageId,
+          request.spaceTypeId().ordinal(),
+          request.startDate(),
+          request.endDate()
+        )
         .getFirst();
     }
 

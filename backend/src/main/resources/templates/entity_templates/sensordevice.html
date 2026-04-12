@@ -56,7 +56,7 @@
                                 class="form-select"
                                 name="parkingSpace.id"
                                 th:attr="id=|parking_space_dropdown${item.id}|"
-                                th:data-current-parking-space="${item.parkingSpace != null ? item.parkingSpace.id : ''}"
+                                th:data-current-parking-space="${item.parkingspace != null ? item.parkingspace.id : ''}"
                             >
                                 <option value="">
                                     -- Select Parking Space --
@@ -79,9 +79,9 @@
                 >
                 </span>
                 <span
-                    th:if="${item.parkingSpace != null}"
+                    th:if="${item.parkingspace != null}"
                     class="text-muted ms-2"
-                    th:text="${item.parkingSpace.code}"
+                    th:text="${item.parkingspace.code}"
                 ></span>
             </div>
         </div>

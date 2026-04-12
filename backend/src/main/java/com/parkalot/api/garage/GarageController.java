@@ -60,13 +60,22 @@ public class GarageController {
     // Basic validation
     if (request.startDate() == null || request.endDate() == null) {
       return ResponseEntity.badRequest().body(
-        Map.of("success", false, "message", "")
+        Map.of("success", false, "message", "Dates cannot be null!")
       );
     }
 
     // entities
     var response = contractService.createQuote(id, request);
-
+    if (response.isEmpty()) {
+      return ResponseEntity.badRequest().body(
+        Map.of(
+          "success",
+          false,
+          "message",
+          "No availability for the selected dates"
+        )
+      );
+    }
     // response
     return ResponseEntity.ok(response);
   }
