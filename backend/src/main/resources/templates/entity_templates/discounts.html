@@ -11,7 +11,7 @@
                             <label class="form-label">Discount Type</label>
                             <select
                                 class="form-select"
-                                name="discountType"
+                                name="discounttype"
                                 id="new_discount_type_dropdown"
                             >
                                 <option value="">-- Select Type --</option>
@@ -29,13 +29,13 @@
                                 <input
                                     type="number"
                                     class="form-control"
-                                    name="percentageAmount"
-                                    id="new_percentageAmount"
+                                    name="percentageamount"
+                                    id="new_percentageamount"
                                     placeholder="e.g. 10"
                                     oninput="
                                         handleDiscountInput(
                                             this,
-                                            'new_flatAmount',
+                                            'new_flatamount',
                                         )
                                     "
                                 />
@@ -52,13 +52,13 @@
                                     type="number"
                                     step="0.01"
                                     class="form-control"
-                                    name="flatAmount"
-                                    id="new_flatAmount"
+                                    name="flatamount"
+                                    id="new_flatamount"
                                     placeholder="e.g. 5.00"
                                     oninput="
                                         handleDiscountInput(
                                             this,
-                                            'new_percentageAmount',
+                                            'new_percentageamount',
                                         )
                                     "
                                 />
@@ -76,9 +76,9 @@
                             <label class="form-label">Discount Type</label>
                             <select
                                 class="form-select"
-                                name="discountType"
+                                name="discounttype"
                                 th:attr="id=|discount_type_dropdown${item.id}|"
-                                th:data-current-discount-type="${item.discountType}"
+                                th:data-current-discount-type="${item.discounttype}"
                             >
                                 <option value="">-- Select Type --</option>
                             </select>
@@ -95,10 +95,10 @@
                                 <input
                                     type="number"
                                     class="form-control"
-                                    name="percentageAmount"
-                                    th:value="${item.percentageAmount}"
-                                    th:attr="id=|percentageAmount${item.id}|, oninput=|handleDiscountInput(this, 'flatAmount${item.id}')|"
-                                    th:disabled="${item.flatAmount != null}"
+                                    name="percentageamount"
+                                    th:value="${item.percentageamount}"
+                                    th:attr="id=|percentageamount${item.id}|, oninput=|handleDiscountInput(this, 'flatamount${item.id}')|"
+                                    th:disabled="${item.flatamount != null}"
                                 />
                                 <span class="input-group-text">%</span>
                             </div>
@@ -113,10 +113,10 @@
                                     type="number"
                                     step="0.01"
                                     class="form-control"
-                                    name="flatAmount"
-                                    th:value="${item.flatAmount}"
-                                    th:attr="id=|flatAmount${item.id}|, oninput=|handleDiscountInput(this, 'percentageAmount${item.id}')|"
-                                    th:disabled="${item.percentageAmount != null}"
+                                    name="flatamount"
+                                    th:value="${item.flatamount}"
+                                    th:attr="id=|flatamount${item.id}|, oninput=|handleDiscountInput(this, 'percentageamount${item.id}')|"
+                                    th:disabled="${item.percentageamount != null}"
                                 />
                             </div>
                         </div>
@@ -126,20 +126,20 @@
 
             <div th:fragment="discount_label">
                 <span
-                    th:if="${item.discountType != null}"
-                    th:text="${T(com.parkalot.infrastructure.enums.DiscountType).values()[item.discountType].label}"
+                    th:if="${item.discounttype != null}"
+                    th:text="${T(com.parkalot.infrastructure.enums.DiscountType).values()[item.discounttype].label}"
                 >
                 </span>
                 <span
-                    th:if="${item.percentageAmount != null}"
+                    th:if="${item.percentageamount != null}"
                     class="badge bg-primary ms-2"
-                    th:text="${item.percentageAmount + '%'}"
+                    th:text="${item.percentageamount + '%'}"
                 >
                 </span>
                 <span
-                    th:if="${item.flatAmount != null}"
+                    th:if="${item.flatamount != null}"
                     class="badge bg-success ms-2"
-                    th:text="'£' + ${#numbers.formatDecimal(item.flatAmount, 1, 'COMMA', 2, 'POINT')}"
+                    th:text="'£' + ${#numbers.formatDecimal(item.flatamount, 1, 'COMMA', 2, 'POINT')}"
                 >
                 </span>
             </div>

@@ -48,7 +48,8 @@ public class ContractService {
     //check garage availability first
     var availability = parkingSpaceService.CheckAvailabilityForGarage(
       garageId,
-      request.spaceTypeId()
+      request.spaceTypeId(),
+      request
     );
     if (availability == GarageAvailability.FULL) {
       return Optional.empty();

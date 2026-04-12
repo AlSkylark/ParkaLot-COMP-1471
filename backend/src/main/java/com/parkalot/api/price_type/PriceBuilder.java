@@ -76,9 +76,20 @@ public class PriceBuilder {
 
   public static BigDecimal calculateTotal(
     PriceType type,
-    long noDays,
-    long noHours
+    LocalDate startDate,
+    LocalDate endDate,
+    LocalTime startTime,
+    LocalTime endTime
   ) {
+    var noDays = ChronoUnit.DAYS.between(startDate, endDate);
+    noDays = noDays == 0 ? 1 : noDays;
+    var totalMinutes =
+      startTime != null && endTime != null
+        ? ChronoUnit.MINUTES.between(startTime, endTime)
+        : 24 * 60;
+
+    var noHours = (totalMinutes / 60) + (totalMinutes % 60 > 30 ? 1 : 0);
+
     var bdNoDays = new BigDecimal(noDays);
     var bdNoHours = new BigDecimal(noHours);
 
