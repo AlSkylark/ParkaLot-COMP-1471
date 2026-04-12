@@ -71,10 +71,13 @@ CREATE TABLE PriceTypes (
 
 CREATE TABLE Contracts (
     Id SERIAL PRIMARY KEY,
-    DateAgreed TIMESTAMP NOT NULL,
+    DateCreated TIMESTAMP NOT NULL,
+    DateAgreed TIMESTAMP,
     ContractNumber VARCHAR(255) UNIQUE NOT NULL,
     IsRecurrent BOOLEAN,
-    CustomerId INT NOT NULL,
+    CustomerId INT,
+    IsQuote BOOLEAN,
+    tempData JSONB,
     CONSTRAINT FK_ContractCustomer FOREIGN KEY (CustomerId) REFERENCES Customers(Id)
 );
 
@@ -119,3 +122,11 @@ VALUES ('L1_01', 'B1', (SELECT Id FROM Garages LIMIT 1));
 
 INSERT INTO Customers (FirstName, LastName, Email, AddressId)
 VALUES ('Alex', 'Castro', 'ac3005g@gre.ac.uk', (SELECT Id FROM Addresses WHERE Address1 = 'Another Str' LIMIT 1));
+
+INSERT INTO PriceTypes(TypeName, Price)
+VALUES ('Hourly_Normal', '3'),
+       ('Hourly_Electric', '4'),
+       ('FullDay_Normal', '2'),
+       ('FullDay_Electric', '3'),
+       ('FullDay_Normal_Bulk', '1.5'),
+       ('FullDay_Electric_Bulk', '2');

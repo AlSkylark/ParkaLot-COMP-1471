@@ -10,17 +10,17 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "discounts")
 public class Discount extends BaseModel {
 
   @Column(name = "discounttype")
-  Integer DiscountType;
+  Integer discounttype;
 
   @Column(name = "percentageamount")
-  Integer PercentageAmount;
+  Integer percentageamount;
 
   @Column(precision = 10, scale = 2, name = "flatamount")
-  BigDecimal FlatAmount;
+  BigDecimal flatamount;
 }

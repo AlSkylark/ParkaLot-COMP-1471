@@ -9,27 +9,27 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "garages")
 public class Garage extends BaseModel {
 
   @Column(name = "locationname")
-  public String Name;
+  public String name;
 
   @OneToOne
   @JoinColumn(name = "addressid")
-  public Address Address;
+  public Address address;
 
-  @OneToMany(mappedBy = "Garage")
-  public Set<Scanner> Scanners = new HashSet<>();
+  @OneToMany(mappedBy = "garage")
+  public Set<Scanner> scanners = new HashSet<>();
 
-  @OneToMany(mappedBy = "Garage")
-  public Set<ParkingSpace> ParkingSpaces = new HashSet<>();
+  @OneToMany(mappedBy = "garage")
+  public Set<ParkingSpace> parkingspaces = new HashSet<>();
 
   public String getFormattedAddress() {
-    if (Address == null) return "";
+    if (address == null) return "";
 
-    return this.Address.toString();
+    return this.address.toString();
   }
 }

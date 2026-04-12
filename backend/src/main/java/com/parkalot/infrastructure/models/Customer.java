@@ -14,36 +14,36 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "customers")
 public class Customer extends BaseModel {
 
   @Column
-  public String Email;
+  public String email;
 
   @Column(name = "firstname")
-  public String FirstName;
+  public String firstname;
 
   @Column(name = "lastname")
-  public String LastName;
+  public String lastname;
 
   @Column
-  public Integer Title;
+  public Integer title;
 
   @Column(name = "iscorporate")
-  public boolean IsCorporate;
+  public boolean iscorporate;
 
   @OneToOne
   @JoinColumn(name = "addressid")
-  public Address Address;
+  public Address address;
 
-  @OneToMany(mappedBy = "Customer")
-  public Set<Car> Cars = new HashSet<>();
+  @OneToMany(mappedBy = "customer")
+  public Set<Car> cars = new HashSet<>();
 
   public String getFormattedAddress() {
-    if (Address == null) return "";
+    if (address == null) return "";
 
-    return this.Address.toString();
+    return this.address.toString();
   }
 }

@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "sensordevice")
 public class SensorDevice extends BaseModel {
 
   @Column(name = "sensorstatus")
-  Integer Status;
+  Integer status;
 
   @OneToOne
   @JoinColumn(name = "parkingspaceid")
-  public ParkingSpace ParkingSpace;
+  public ParkingSpace parkingspace;
 }

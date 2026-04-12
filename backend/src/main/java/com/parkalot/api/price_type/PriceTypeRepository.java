@@ -2,5 +2,8 @@ package com.parkalot.api.price_type;
 
 import com.parkalot.api.BaseRepository;
 import com.parkalot.infrastructure.models.PriceType;
+import java.util.Optional;
 
-public interface PriceTypeRepository extends BaseRepository<PriceType> {}
+public interface PriceTypeRepository extends BaseRepository<PriceType> {
+  Optional<PriceType> findByName(String name);
+}

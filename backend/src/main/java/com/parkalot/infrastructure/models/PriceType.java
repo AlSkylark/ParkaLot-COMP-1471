@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "pricetypes")
 public class PriceType extends BaseModel {
 
   @Column(name = "typename")
-  String Name;
+  String name;
 
   @Column(precision = 10, scale = 2)
-  BigDecimal Price;
+  BigDecimal price;
 }
