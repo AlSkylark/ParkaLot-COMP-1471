@@ -12,23 +12,23 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "parkingspaces")
 public class ParkingSpace extends BaseModel {
 
-  String Code;
+  String code;
 
   @Column(name = "spacetype")
-  Integer SpaceType;
+  Integer spacetype;
 
   @Column(name = "locationfloor")
-  String Floor;
+  String floor;
 
   @ManyToOne
   @JoinColumn(name = "locationid")
-  public Garage Garage;
+  public Garage garage;
 
-  @OneToOne(mappedBy = "ParkingSpace")
-  public SensorDevice Sensor;
+  @OneToOne(mappedBy = "parkingspace")
+  public SensorDevice sensor;
 }

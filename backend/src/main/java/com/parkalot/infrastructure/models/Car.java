@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "cars")
 public class Car extends BaseModel {
 
-  String PlateNo;
-  int CarType;
+  String plateno;
+  int cartype;
 
   @ManyToOne
   @JoinColumn(name = "customerid", nullable = false)
-  public Customer Customer;
+  public Customer customer;
 }

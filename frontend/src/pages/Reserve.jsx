@@ -81,7 +81,7 @@ function Reserve() {
         setSubmitting(true);
         try {
             const res = await reserve(id, form);
-            alert(res);
+            alert(JSON.stringify(res));
         } finally {
             setSubmitting(false);
         }

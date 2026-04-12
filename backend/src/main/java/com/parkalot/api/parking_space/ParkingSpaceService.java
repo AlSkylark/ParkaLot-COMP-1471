@@ -25,8 +25,8 @@ public class ParkingSpaceService {
         new ParkingSpaceDto(
           ps.getCode(),
           ps.getFloor(),
-          ps.getSpaceType() != null
-            ? SpaceType.values()[ps.getSpaceType()]
+          ps.getSpacetype() != null
+            ? SpaceType.values()[ps.getSpacetype()]
             : null
         )
       );
@@ -38,14 +38,23 @@ public class ParkingSpaceService {
   public GarageAvailability CheckAvailabilityForGarage(int id) {
     return repo
       .checkAvailability(id)
-      .map(a -> {
-        var ratio = (a.free * 100) / a.total;
-
-        if (ratio > 70) return GarageAvailability.HIGH_AVAILABILITY;
-        else if (ratio > 40) return GarageAvailability.MEDIUM_AVAILABILITY;
-        else if (ratio > 0) return GarageAvailability.LOW_AVAILABILITY;
-        else return GarageAvailability.FULL;
-      })
+      .map(a -> CalculateAvailability(a.free, a.total))
       .orElse(GarageAvailability.FULL);
+  }
+
+  public GarageAvailability CheckAvailabilityForGarage(int id, SpaceType type) {
+    return repo
+      .checkAvailability(id, type.ordinal())
+      .map(a -> CalculateAvailability(a.free, a.total))
+      .orElse(GarageAvailability.FULL);
+  }
+
+  private GarageAvailability CalculateAvailability(int free, int total) {
+    var ratio = (free * 100) / total;
+
+    if (ratio > 70) return GarageAvailability.HIGH_AVAILABILITY;
+    else if (ratio > 40) return GarageAvailability.MEDIUM_AVAILABILITY;
+    else if (ratio > 0) return GarageAvailability.LOW_AVAILABILITY;
+    else return GarageAvailability.FULL;
   }
 }

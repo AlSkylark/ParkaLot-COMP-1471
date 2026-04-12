@@ -18,11 +18,11 @@ public class CustomerService {
     var customer = user.orElseThrow();
 
     var dto = new CustomerDto(
-      customer.Email,
-      customer.FirstName,
-      customer.LastName,
-      customer.IsCorporate,
-      Optional.ofNullable(customer.Address)
+      customer.email,
+      customer.firstname,
+      customer.lastname,
+      customer.iscorporate,
+      Optional.ofNullable(customer.address)
         .map(a -> a.toString())
         .orElse("")
     );
