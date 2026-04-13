@@ -1,0 +1,154 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div class="d-flex flex-column" style="min-height: calc(100vh - 56px)">
+
+            <!-- Top bar: title + week strip -->
+            <div class="border-bottom bg-white sticky-top shadow-sm">
+                <div class="container-lg">
+                    <div class="py-3 d-flex align-items-center justify-content-between gap-3">
+                        <h5 class="mb-0 fw-bold">All Reservations</h5>
+                        <small class="text-muted" id="reservation-date-label">Today</small>
+                    </div>
+                    <!-- Week strip -->
+                    <div class="pb-3 d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-secondary px-2" onclick="shiftWeek(-7)" title="Previous week">&#8249;</button>
+                        <div class="d-flex gap-2 flex-grow-1" id="week-strip"></div>
+                        <button class="btn btn-sm btn-outline-secondary px-2" onclick="shiftWeek(7)" title="Next week">&#8250;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation grid -->
+            <div class="flex-grow-1 overflow-auto">
+                <div class="container-lg py-4 pb-5 mb-4">
+                    <div id="loading-state" class="text-center py-5">
+                        <div class="spinner-border text-secondary" role="status"></div>
+                    </div>
+                    <div class="row g-3 d-none" id="reservation-list"></div>
+                    <div class="text-center text-muted py-5 d-none" id="empty-state">
+                        <p class="mb-0">No reservations for this day.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky bottom action bar -->
+        <div class="border-top bg-white py-3 px-4"
+             style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030">
+            <a href="/" class="btn btn-outline-secondary">&#8592; Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let selectedDate = localDate();
+    let weekOffset = 0;
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        renderWeekStrip();
+        updateDateLabel(selectedDate);
+        await loadData();
+    });
+
+    // ── Data ───────────────────────────────────────────────
+    async function loadData() {
+        document.getElementById("loading-state").classList.remove("d-none");
+        document.getElementById("reservation-list").classList.add("d-none");
+        document.getElementById("empty-state").classList.add("d-none");
+
+        const reservations = await fetch(`/api/reservations?date=${selectedDate}`).then(r => r.json());
+
+        document.getElementById("loading-state").classList.add("d-none");
+        renderReservations(reservations);
+    }
+
+    // ── Render ─────────────────────────────────────────────
+    function renderReservations(reservations) {
+        const list = document.getElementById("reservation-list");
+        list.innerHTML = "";
+
+        if (reservations.length === 0) {
+            document.getElementById("empty-state").classList.remove("d-none");
+            return;
+        }
+
+        list.classList.remove("d-none");
+        reservations.forEach(r => {
+            const col = document.createElement("div");
+            col.className = "col-12 col-md-6 col-lg-4";
+            col.innerHTML = `
+                <a href="/reservations/${r.id}" class="text-decoration-none">
+                    <div class="card reservation-item h-100">
+                        <div class="card-body">${buildReservationItemHtml(r)}</div>
+                    </div>
+                </a>`;
+            list.appendChild(col);
+        });
+    }
+
+    // ── Week strip ─────────────────────────────────────────
+    function renderWeekStrip() {
+        const strip = document.getElementById("week-strip");
+        strip.innerHTML = "";
+
+        const today = new Date();
+        const base  = new Date(today);
+        base.setDate(today.getDate() + weekOffset);
+
+        for (let i = 0; i < 7; i++) {
+            const date    = new Date(base);
+            date.setDate(base.getDate() + i);
+            const dateStr = localDate(date);
+            const isPast  = dateStr < localDate(today);
+
+            const btn = document.createElement("button");
+            btn.className = `btn btn-sm flex-grow-1 ${
+                dateStr === selectedDate ? "btn-primary" :
+                isPast ? "btn-outline-secondary opacity-50" :
+                "btn-outline-secondary"
+            }`;
+            btn.innerHTML = `
+                <div style="font-size:0.65rem;">${date.toLocaleDateString("en-GB", { weekday: "short" })}</div>
+                <div class="fw-bold">${date.getDate()}</div>`;
+            btn.onclick = () => selectDate(dateStr, btn);
+            strip.appendChild(btn);
+        }
+    }
+
+    async function shiftWeek(delta) {
+        weekOffset += delta;
+
+        const today    = new Date();
+        const base     = new Date(today);
+        base.setDate(today.getDate() + weekOffset);
+        const weekStart = localDate(base);
+        const weekEnd   = new Date(base);
+        weekEnd.setDate(base.getDate() + 6);
+
+        if (selectedDate < weekStart || selectedDate > localDate(weekEnd)) {
+            selectedDate = weekStart;
+            updateDateLabel(selectedDate);
+            await loadData();
+        }
+        renderWeekStrip();
+    }
+
+    async function selectDate(date, btn) {
+        selectedDate = date;
+        document.querySelectorAll("#week-strip button").forEach(b => {
+            b.className = b.className.replace("btn-primary", "btn-outline-secondary");
+        });
+        btn.className = btn.className.replace("btn-outline-secondary", "btn-primary");
+        updateDateLabel(date);
+        await loadData();
+    }
+
+    function updateDateLabel(date) {
+        document.getElementById("reservation-date-label").textContent =
+            new Date(date + "T00:00:00").toLocaleDateString("en-GB", {
+                weekday: "long", day: "numeric", month: "short"
+            });
+    }
+</script>
+
+<th:block th:replace="~{fragments/reservation_card :: support}"></th:block>

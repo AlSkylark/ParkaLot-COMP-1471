@@ -1,10 +1,16 @@
 package com.parkalot.api.parking_space;
 
+import com.parkalot.api.DropdownItem;
 import com.parkalot.api.parking_space.Dtos.ParkingAvailabilityDto;
+import com.parkalot.api.parking_space.Dtos.ParkingSpaceCreateRequest;
 import com.parkalot.api.parking_space.Dtos.ParkingSpaceDto;
-import com.parkalot.api.space_reservation.ReservationRequest;
+import com.parkalot.api.space_reservation.dtos.ReservationRequest;
 import com.parkalot.infrastructure.enums.GarageAvailability;
+import com.parkalot.infrastructure.enums.SensorStatus;
 import com.parkalot.infrastructure.enums.SpaceType;
+import com.parkalot.infrastructure.models.Garage;
+import com.parkalot.infrastructure.models.ParkingSpace;
+import com.parkalot.infrastructure.models.SensorDevice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,11 +32,15 @@ public class ParkingSpaceService {
     spaces.forEach(ps -> {
       result.add(
         new ParkingSpaceDto(
+          ps.getId(),
           ps.getCode(),
           ps.getFloor(),
           ps.getSpacetype() != null
             ? SpaceType.values()[ps.getSpacetype()]
-            : null
+            : null,
+          ps.getSensor() != null
+            ? SensorStatus.values()[ps.getSensor().getStatus()]
+            : SensorStatus.FREE
         )
       );
     });
@@ -78,6 +88,44 @@ public class ParkingSpaceService {
     return availability
       .map(a -> CalculateAvailability(a.free, a.total))
       .orElse(GarageAvailability.FULL);
+  }
+
+  public List<DropdownItem> getAsDropdownItems() {
+    return repo
+      .findAllByOrderByIdAsc()
+      .stream()
+      .map(p -> new DropdownItem(p.getId(), p.getCode()))
+      .toList();
+  }
+
+  public ParkingSpace addSpace(
+    Garage garage,
+    ParkingSpaceCreateRequest request
+  ) {
+    var newSpace = new ParkingSpace();
+    newSpace.setCode(request.code());
+    newSpace.setFloor(request.floor());
+    newSpace.setGarage(garage);
+    newSpace.setSpacetype(request.type().ordinal());
+
+    var newSensor = new SensorDevice();
+    newSensor.setParkingspace(newSpace);
+    newSensor.setStatus(0);
+    newSpace.setSensor(newSensor);
+
+    repo.save(newSpace);
+
+    return newSpace;
+  }
+
+  public boolean deleteSpace(int id) {
+    try {
+      repo.deleteById(id);
+      return true;
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return false;
+    }
   }
 
   private GarageAvailability CalculateAvailability(int free, int total) {

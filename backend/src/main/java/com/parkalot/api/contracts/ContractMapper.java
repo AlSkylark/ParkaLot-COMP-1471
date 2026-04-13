@@ -2,7 +2,7 @@ package com.parkalot.api.contracts;
 
 import com.parkalot.api.contracts.dtos.QuoteDto;
 import com.parkalot.api.price_type.PriceBuilder;
-import com.parkalot.api.space_reservation.ReservationRequest;
+import com.parkalot.api.space_reservation.dtos.ReservationRequest;
 import com.parkalot.infrastructure.models.Contract;
 import org.springframework.stereotype.Component;
 

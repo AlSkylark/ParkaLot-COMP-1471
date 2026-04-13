@@ -3,8 +3,14 @@ package com.parkalot.api.space_reservation;
 import com.parkalot.api.car.CarService;
 import com.parkalot.api.parking_space.ParkingSpaceRepository;
 import com.parkalot.api.price_type.PriceBuilder;
+import com.parkalot.api.space_reservation.dtos.ReservationRequest;
+import com.parkalot.api.space_reservation.dtos.ReservationUpdateRequest;
+import com.parkalot.api.space_reservation.dtos.SpaceReservationDto;
 import com.parkalot.infrastructure.models.ParkingSpace;
 import com.parkalot.infrastructure.models.SpaceReservation;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +35,8 @@ public class SpaceReservationsService {
 
   public SpaceReservation assignParkingSpace(
     int garageId,
-    ReservationRequest request
+    ReservationRequest request,
+    boolean hasCustomer
   ) {
     var spaceReservation = new SpaceReservation();
 
@@ -48,12 +55,104 @@ public class SpaceReservationsService {
 
     spaceReservation.setPricetype(generatedPriceType);
 
-    if (request.carPlate() != null && !request.carPlate().isBlank()) {
+    if (
+      hasCustomer && request.carPlate() != null && !request.carPlate().isBlank()
+    ) {
       var car = carService.getOrCreateCar(request.carPlate());
       spaceReservation.setCar(car);
     }
 
     return spaceReservation;
+  }
+
+  public List<SpaceReservationDto> getGarageReservations(
+    int garageId,
+    LocalDate date
+  ) {
+    var dateToSearch = date;
+    if (date == null) {
+      dateToSearch = LocalDate.now();
+    }
+    var reservations = repo.findByGarageId(garageId, dateToSearch);
+    var mapped = reservations
+      .stream()
+      .map(r -> {
+        var contract = r.getContract();
+        String name;
+        if (contract.getCustomer() != null) {
+          name =
+            contract.getCustomer().getFirstname() +
+            " " +
+            contract.getCustomer().getLastname();
+        } else if (contract.getGuestData() != null) {
+          name = contract.getGuestData().fullName();
+        } else {
+          name = "Unknown";
+        }
+        return new SpaceReservationDto(
+          contract.getId(),
+          name,
+          r.getSpace().getCode(),
+          r.getSpace().getFloor(),
+          r.getDatefrom(),
+          r.getDateto(),
+          r.getTimefrom(),
+          r.getTimeto(),
+          r.getPricetype().getName(),
+          null
+        );
+      })
+      .collect(Collectors.toList());
+
+    return mapped;
+  }
+
+  public List<SpaceReservationDto> getAllReservations(LocalDate date) {
+    var dateToSearch = date != null ? date : LocalDate.now();
+    return repo
+      .findByDate(dateToSearch)
+      .stream()
+      .map(r -> {
+        var contract = r.getContract();
+        String name;
+        if (contract.getCustomer() != null) {
+          name =
+            contract.getCustomer().getFirstname() +
+            " " +
+            contract.getCustomer().getLastname();
+        } else if (contract.getGuestData() != null) {
+          name = contract.getGuestData().fullName();
+        } else {
+          name = "Unknown";
+        }
+        var garage = r.getSpace().getGarage();
+        return new SpaceReservationDto(
+          contract.getId(),
+          name,
+          r.getSpace().getCode(),
+          r.getSpace().getFloor(),
+          r.getDatefrom(),
+          r.getDateto(),
+          r.getTimefrom(),
+          r.getTimeto(),
+          r.getPricetype().getName(),
+          garage != null ? garage.getName() : null
+        );
+      })
+      .toList();
+  }
+
+  public void updateReservation(int id, ReservationUpdateRequest request) {
+    var reservation = repo.findById(id).orElseThrow();
+    reservation.setDatefrom(request.datefrom());
+    reservation.setDateto(request.dateto());
+    reservation.setTimefrom(request.timefrom());
+    reservation.setTimeto(request.timeto());
+    repo.save(reservation);
+  }
+
+  public void cancelReservation(int reservationId) {
+    repo.deleteById(reservationId);
   }
 
   private ParkingSpace getAvailableSpace(

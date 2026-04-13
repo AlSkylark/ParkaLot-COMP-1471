@@ -59,62 +59,73 @@
                     </div>
                 </div>
 
-                <hr class="my-3" />
-
                 <!-- Scanners -->
-                <div class="row mb-3">
-                    <div class="col">
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-2"
-                        >
-                            <h6 class="mb-0">Scanners</h6>
-                            <a
-                                th:href="@{/edit/scanner}"
-                                class="btn btn-sm btn-outline-primary"
+                <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                >
+                    <h6 class="mb-0">Scanners</h6>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        th:onclick="|toggleAddScanner(${item.id})|"
+                    >
+                        + Add Scanner
+                    </button>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body text-center py-4">
+                        <div>
+                            <!-- Add scanner form -->
+                            <div
+                                th:id="|add-scanner-form-${item.id}|"
+                                class="card mb-2 d-none"
                             >
-                                Manage Scanners →
-                            </a>
-                        </div>
-                        <div class="card">
-                            <div class="card-body text-center py-4">
-                                <span class="badge bg-warning text-dark mb-2"
-                                    >Coming Soon</span
-                                >
-                                <p class="text-muted mb-2 small">
-                                    Scanner list for this garage will appear
-                                    here.
-                                </p>
-                                <div
-                                    class="d-flex justify-content-center gap-2 opacity-25"
-                                >
-                                    <div class="card" style="width: 180px">
-                                        <div
-                                            class="card-body py-2 px-3 text-start"
-                                        >
-                                            <small class="fw-bold"
-                                                >SCN-001</small
+                                <div class="card-body">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-sm">
+                                            <label class="form-label small mb-1"
+                                                >Type</label
                                             >
-                                            <span
-                                                class="badge bg-success ms-1"
-                                                style="font-size: 0.6rem"
-                                                >Entry</span
+                                            <select
+                                                class="form-select form-select-sm"
+                                                th:id="|scanner-type-${item.id}|"
                                             >
+                                                <option value="0">Entry</option>
+                                                <option value="1">Exit</option>
+                                                <option value="2">Both</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-primary"
+                                                th:onclick="|addScanner(${item.id})|"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                th:onclick="|toggleAddScanner(${item.id})|"
+                                            >
+                                                Cancel
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="card" style="width: 180px">
-                                        <div
-                                            class="card-body py-2 px-3 text-start"
-                                        >
-                                            <small class="fw-bold"
-                                                >SCN-002</small
-                                            >
-                                            <span
-                                                class="badge bg-danger ms-1"
-                                                style="font-size: 0.6rem"
-                                                >Exit</span
-                                            >
-                                        </div>
-                                    </div>
+                                    <div
+                                        th:id="|scanner-error-${item.id}|"
+                                        class="alert alert-danger alert-sm mt-2 py-1 d-none small"
+                                    ></div>
+                                </div>
+                            </div>
+
+                            <!-- Scanners list (populated via fetch) -->
+                            <div th:id="|scanners-list-${item.id}|">
+                                <div class="text-muted small text-center py-2">
+                                    <span
+                                        class="spinner-border spinner-border-sm me-1"
+                                    ></span>
+                                    Loading scanners&hellip;
                                 </div>
                             </div>
                         </div>
@@ -122,310 +133,97 @@
                 </div>
 
                 <!-- Parking Spaces -->
-                <div class="row mb-3">
-                    <div class="col">
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-2"
-                        >
-                            <h6 class="mb-0">Parking Spaces</h6>
-                            <a
-                                th:href="@{/edit/parkingspaces}"
-                                class="btn btn-sm btn-outline-primary"
+                <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                >
+                    <h6 class="mb-0">Parking Spaces</h6>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        th:onclick="|toggleAddSpace(${item.id})|"
+                    >
+                        + Add Space
+                    </button>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body text-center py-4">
+                        <div>
+                            <!-- Add space form -->
+                            <div
+                                th:id="|add-space-form-${item.id}|"
+                                class="card mb-2 d-none"
                             >
-                                Manage Parking Spaces →
-                            </a>
-                        </div>
-                        <div class="card">
-                            <div class="card-body py-4">
-                                <span class="badge bg-warning text-dark mb-3"
-                                    >Coming Soon</span
-                                >
-                                <p class="text-muted mb-3 small text-center">
-                                    Parking spaces for this garage will appear
-                                    here.
-                                </p>
-
-                                <div class="d-flex gap-3 opacity-25">
-                                    <!-- Floor Selector -->
+                                <div class="card-body">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-sm">
+                                            <label class="form-label small mb-1"
+                                                >Code</label
+                                            >
+                                            <input
+                                                type="text"
+                                                class="form-control form-control-sm"
+                                                th:id="|space-code-${item.id}|"
+                                                placeholder="e.g. A001"
+                                            />
+                                        </div>
+                                        <div class="col-sm">
+                                            <label class="form-label small mb-1"
+                                                >Floor</label
+                                            >
+                                            <input
+                                                type="text"
+                                                class="form-control form-control-sm"
+                                                th:id="|space-floor-${item.id}|"
+                                                placeholder="e.g. Ground"
+                                            />
+                                        </div>
+                                        <div class="col-sm">
+                                            <label class="form-label small mb-1"
+                                                >Type</label
+                                            >
+                                            <select
+                                                class="form-select form-select-sm"
+                                                th:id="|space-type-${item.id}|"
+                                            >
+                                                <option value="0">
+                                                    Normal
+                                                </option>
+                                                <option value="1">
+                                                    Electric
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-primary"
+                                                th:onclick="|addSpace(${item.id})|"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                th:onclick="|toggleAddSpace(${item.id})|"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
                                     <div
-                                        class="d-flex flex-column gap-2"
-                                        style="min-width: 60px"
-                                    >
-                                        <button class="btn btn-sm btn-primary">
-                                            B1
-                                        </button>
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            F1
-                                        </button>
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            F2
-                                        </button>
-                                    </div>
+                                        th:id="|space-error-${item.id}|"
+                                        class="alert alert-danger alert-sm mt-2 py-1 d-none small"
+                                    ></div>
+                                </div>
+                            </div>
 
-                                    <!-- Spaces Grid -->
-                                    <div class="flex-grow-1">
-                                        <!-- B1 -->
-                                        <div>
-                                            <small
-                                                class="text-muted fw-bold d-block mb-2"
-                                                >Basement 1</small
-                                            >
-                                            <div class="row g-2">
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >B1-001</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >B1-002</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-success"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Electric</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >B1-003</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >B1-004</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-success"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Electric</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- F1 -->
-                                        <div class="mt-3">
-                                            <small
-                                                class="text-muted fw-bold d-block mb-2"
-                                                >Floor 1</small
-                                            >
-                                            <div class="row g-2">
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F1-001</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F1-002</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F1-003</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-success"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Electric</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F1-004</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- F2 -->
-                                        <div class="mt-3">
-                                            <small
-                                                class="text-muted fw-bold d-block mb-2"
-                                                >Floor 2</small
-                                            >
-                                            <div class="row g-2">
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F2-001</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-success"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Electric</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F2-002</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F2-003</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-success"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Electric</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <div class="card">
-                                                        <div
-                                                            class="card-body py-2 px-3"
-                                                        >
-                                                            <small
-                                                                class="fw-bold d-block"
-                                                                >F2-004</small
-                                                            >
-                                                            <span
-                                                                class="badge bg-secondary"
-                                                                style="
-                                                                    font-size: 0.6rem;
-                                                                "
-                                                                >Normal</span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <!-- Spaces list (populated via fetch) -->
+                            <div th:id="|spaces-list-${item.id}|">
+                                <div class="text-muted small text-center py-2">
+                                    <span
+                                        class="spinner-border spinner-border-sm me-1"
+                                    ></span>
+                                    Loading spaces&hellip;
                                 </div>
                             </div>
                         </div>
@@ -446,6 +244,7 @@
 </div>
 
 <script th:inline="javascript">
+    // ── Address dropdowns ───────────────────────────────────
     document.addEventListener("DOMContentLoaded", async function () {
         const addresses = await fetch("/api/addresses/dropdown").then((r) =>
             r.json(),
@@ -455,5 +254,256 @@
             addresses,
             "currentAddress",
         );
+
+        // Lazy-load spaces + scanners when a garage accordion opens
+        document.querySelectorAll('[id^="collapse"]').forEach((el) => {
+            el.addEventListener("show.bs.collapse", function () {
+                const garageId = this.id.replace("collapse", "");
+                loadSpaces(garageId);
+                loadScanners(garageId);
+            });
+        });
     });
+
+    // ── Spaces ─────────────────────────────────────────────
+    const garageSpaces = {}; // cache: garageId → spaces[]
+    const selectedFloors = {}; // state:  garageId → floor prefix
+
+    async function loadSpaces(garageId) {
+        const list = document.getElementById(`spaces-list-${garageId}`);
+        try {
+            const spaces = await fetch(`/api/garages/${garageId}/spaces`).then(
+                (r) => r.json(),
+            );
+            garageSpaces[garageId] = spaces;
+            renderSpaces(garageId);
+        } catch {
+            list.innerHTML = `<small class="text-danger">Failed to load spaces.</small>`;
+        }
+    }
+
+    function renderSpaces(garageId) {
+        const list = document.getElementById(`spaces-list-${garageId}`);
+        const spaces = garageSpaces[garageId] ?? [];
+
+        if (spaces.length === 0) {
+            list.innerHTML = `<small class="text-muted">No spaces yet.</small>`;
+            return;
+        }
+
+        const floors = [
+            ...new Set(spaces.map((s) => s.code.substring(0, 2))),
+        ].sort();
+
+        // Keep selection if still valid, otherwise default to first floor
+        if (
+            !selectedFloors[garageId] ||
+            !floors.includes(selectedFloors[garageId])
+        ) {
+            selectedFloors[garageId] = floors[0];
+        }
+
+        list.innerHTML = `
+            <div class="d-flex gap-3">
+                <div class="d-flex flex-column gap-1" id="floor-btns-${garageId}" style="min-width:60px;">
+                    ${floors
+                        .map(
+                            (f) => `
+                        <button type="button"
+                                class="btn btn-sm ${f === selectedFloors[garageId] ? "btn-primary" : "btn-outline-secondary"}"
+                                onclick="selectFloor(${garageId}, '${f}', this)">
+                            ${f}
+                        </button>
+                    `,
+                        )
+                        .join("")}
+                </div>
+                <div class="flex-grow-1" id="spaces-grid-${garageId}">
+                    ${buildSpacesGrid(garageId)}
+                </div>
+            </div>`;
+    }
+
+    function buildSpacesGrid(garageId) {
+        const floor = selectedFloors[garageId];
+        const filtered = (garageSpaces[garageId] ?? []).filter((s) =>
+            s.code.startsWith(floor),
+        );
+        if (filtered.length === 0)
+            return `<small class="text-muted">No spaces on this floor.</small>`;
+        return `<div class="d-flex flex-wrap gap-2">
+            ${filtered
+                .map(
+                    (s) => `
+                <div class="card">
+                    <div class="card-body py-1 px-2 d-flex align-items-center gap-2">
+                        <small class="fw-bold">${s.code}</small>
+                        <span class="badge ${s.type === "ELECTRIC" ? "bg-success" : "bg-secondary"}"
+                              style="font-size:0.6rem;">
+                            ${s.type === "ELECTRIC" ? "Electric" : "Normal"}
+                        </span>
+                        <button type="button" class="btn-close" style="font-size:0.5rem;"
+                                onclick="deleteSpace(${garageId}, '${s.code}')"></button>
+                    </div>
+                </div>
+            `,
+                )
+                .join("")}
+        </div>`;
+    }
+
+    function selectFloor(garageId, floor, btn) {
+        selectedFloors[garageId] = floor;
+        document
+            .querySelectorAll(`#floor-btns-${garageId} button`)
+            .forEach((b) => {
+                b.className = "btn btn-sm btn-outline-secondary";
+            });
+        btn.className = "btn btn-sm btn-primary";
+        document.getElementById(`spaces-grid-${garageId}`).innerHTML =
+            buildSpacesGrid(garageId);
+    }
+
+    function toggleAddSpace(garageId) {
+        document
+            .getElementById(`add-space-form-${garageId}`)
+            .classList.toggle("d-none");
+    }
+
+    async function addSpace(garageId) {
+        const code = document
+            .getElementById(`space-code-${garageId}`)
+            .value.trim();
+        const floor = document
+            .getElementById(`space-floor-${garageId}`)
+            .value.trim();
+        const spacetype = parseInt(
+            document.getElementById(`space-type-${garageId}`).value,
+        );
+        const errorEl = document.getElementById(`space-error-${garageId}`);
+
+        if (!code || !floor) {
+            errorEl.textContent = "Code and floor are required.";
+            errorEl.classList.remove("d-none");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/garages/${garageId}/spaces`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, floor, type: spacetype }),
+            });
+            if (!res.ok) throw new Error(await res.text());
+            errorEl.classList.add("d-none");
+            document.getElementById(`space-code-${garageId}`).value = "";
+            document.getElementById(`space-floor-${garageId}`).value = "";
+            toggleAddSpace(garageId);
+            await loadSpaces(garageId);
+        } catch (e) {
+            errorEl.textContent = "Failed to add space. Is the code unique?";
+            errorEl.classList.remove("d-none");
+        }
+    }
+
+    async function deleteSpace(garageId, spaceCode) {
+        if (!confirm(`Delete space ${spaceCode}? This cannot be undone.`))
+            return;
+        try {
+            const res = await fetch(
+                `/api/garages/${garageId}/spaces/${spaceCode}`,
+                { method: "DELETE" },
+            );
+            if (!res.ok) throw new Error();
+            await loadSpaces(garageId);
+        } catch {
+            alert("Failed to delete space.");
+        }
+    }
+
+    // ── Scanners ────────────────────────────────────────────
+    const SCANNER_LABELS = { ENTRY: "Entry", EXIT: "Exit", BOTH: "Both" };
+    const SCANNER_BADGES = {
+        ENTRY: "bg-info text-dark",
+        EXIT: "bg-warning text-dark",
+        BOTH: "bg-primary",
+    };
+
+    async function loadScanners(garageId) {
+        const list = document.getElementById(`scanners-list-${garageId}`);
+        try {
+            const scanners = await fetch(
+                `/api/garages/${garageId}/scanners`,
+            ).then((r) => r.json());
+            renderScanners(garageId, scanners);
+        } catch {
+            list.innerHTML = `<small class="text-danger">Failed to load scanners.</small>`;
+        }
+    }
+
+    function renderScanners(garageId, scanners) {
+        const list = document.getElementById(`scanners-list-${garageId}`);
+        if (scanners.length === 0) {
+            list.innerHTML = `<small class="text-muted">No scanners yet.</small>`;
+            return;
+        }
+        list.innerHTML = `<div class="d-flex flex-wrap gap-2">${scanners
+            .map(
+                (s) => `
+            <div class="card">
+                <div class="card-body py-1 px-2 d-flex align-items-center gap-2">
+                    <small class="fw-bold">SCN-${String(s.id).padStart(3, "0")}</small>
+                    <span class="badge ${SCANNER_BADGES[s.type] ?? "bg-secondary"}"
+                          style="font-size:0.6rem;">
+                        ${SCANNER_LABELS[s.type] ?? "Unknown"}
+                    </span>
+                    <button type="button" class="btn-close" style="font-size:0.5rem;"
+                            onclick="deleteScanner(${garageId}, ${s.id})"></button>
+                </div>
+            </div>
+        `,
+            )
+            .join("")}</div>`;
+    }
+
+    function toggleAddScanner(garageId) {
+        document
+            .getElementById(`add-scanner-form-${garageId}`)
+            .classList.toggle("d-none");
+    }
+
+    async function addScanner(garageId) {
+        const scannertype = parseInt(
+            document.getElementById(`scanner-type-${garageId}`).value,
+        );
+        const errorEl = document.getElementById(`scanner-error-${garageId}`);
+        try {
+            const res = await fetch(`/api/garages/${garageId}/scanners`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ scannertype }),
+            });
+            if (!res.ok) throw new Error();
+            errorEl.classList.add("d-none");
+            toggleAddScanner(garageId);
+            await loadScanners(garageId);
+        } catch {
+            errorEl.textContent = "Failed to add scanner.";
+            errorEl.classList.remove("d-none");
+        }
+    }
+
+    async function deleteScanner(garageId, scannerId) {
+        if (!confirm("Delete this scanner? This cannot be undone.")) return;
+        try {
+            const res = await fetch(
+                `/api/garages/${garageId}/scanners/${scannerId}`,
+                { method: "DELETE" },
+            );
+            if (!res.ok) throw new Error();
+            await loadScanners(garageId);
+        } catch {
+            alert("Failed to delete scanner.");
+        }
+    }
 </script>

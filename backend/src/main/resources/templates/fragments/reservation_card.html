@@ -1,0 +1,107 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <!--
+    Shared reservation card support.
+    Include in any page that renders reservation lists:
+
+        <th:block th:replace="~{fragments/reservation_card :: support}"></th:block>
+
+    Then call buildReservationItemHtml(r) inside your own renderReservations().
+    The r object must be a SpaceReservationDto (id, customerName, spaceCode,
+    spaceFloor, datefrom, dateto, timefrom, timeto, priceTypeName, garageName).
+    garageName is nullable — shown as a badge when present.
+-->
+        <th:block th:fragment="support">
+            <script>
+                /**
+                 * Returns the inner HTML for a single reservation card body.
+                 * Safe to use in both narrow sidebar lists and wide card grids.
+                 */
+                function buildReservationItemHtml(r) {
+                    const status = reservationStatus(r);
+                    const isMultiDay = r.datefrom !== r.dateto;
+                    const timeDisplay = isMultiDay
+                        ? `&#128197; ${formatDate(r.datefrom)} &rarr; ${formatDate(r.dateto)}`
+                        : `&#128336; ${r.timefrom ?? "—"} &rarr; ${r.timeto ?? "—"}`;
+
+                    return `
+            <div class="d-flex justify-content-between align-items-start mb-1">
+                <small class="fw-bold">${r.customerName ?? "Unknown"}</small>
+                <div class="d-flex gap-1 ms-2 flex-shrink-0">
+                    <span class="badge ${isMultiDay ? "bg-primary" : "bg-info text-dark"}" style="font-size:0.6rem;">
+                        ${isMultiDay ? "Multi-day" : "Single day"}
+                    </span>
+                    <span class="badge ${status.cls}" style="font-size:0.6rem;">${status.label}</span>
+                </div>
+            </div>
+            ${r.garageName ? `<small class="d-block mb-1"><span class="badge bg-light text-dark border" style="font-size:0.65rem;">&#128205; ${r.garageName}</span></small>` : ""}
+            <small class="text-muted d-block">${r.spaceCode ?? "Unknown space"}${r.spaceFloor ? " &middot; Floor " + r.spaceFloor : ""}</small>
+            <small class="text-muted d-block">${r.priceTypeName ?? ""}</small>
+            <small class="text-muted d-block mt-1">${timeDisplay}</small>`;
+                }
+
+                function reservationStatus(r) {
+                    const now = new Date();
+                    const isMultiDay = r.datefrom !== r.dateto;
+                    const today = localDate(now);
+
+                    if (isMultiDay) {
+                        if (r.dateto < today)
+                            return { label: "Ended", cls: "bg-secondary" };
+                        if (r.datefrom > today)
+                            return {
+                                label: "Upcoming",
+                                cls: "bg-info text-dark",
+                            };
+                        return { label: "Active", cls: "bg-success" };
+                    } else {
+                        if (r.datefrom < today)
+                            return { label: "Ended", cls: "bg-secondary" };
+                        if (r.datefrom > today)
+                            return {
+                                label: "Upcoming",
+                                cls: "bg-info text-dark",
+                            };
+                        if (r.timefrom && r.timeto) {
+                            const [fromH, fromM] = r.timefrom
+                                .split(":")
+                                .map(Number);
+                            const [toH, toM] = r.timeto.split(":").map(Number);
+                            const from = new Date();
+                            from.setHours(fromH, fromM, 0);
+                            const to = new Date();
+                            to.setHours(toH, toM, 0);
+                            if (now < from)
+                                return {
+                                    label: "Upcoming",
+                                    cls: "bg-info text-dark",
+                                };
+                            if (now > to)
+                                return { label: "Ended", cls: "bg-secondary" };
+                            return { label: "Active", cls: "bg-success" };
+                        }
+                    }
+                    return { label: "Unknown", cls: "bg-secondary" };
+                }
+
+                function formatDate(dateStr) {
+                    return new Date(dateStr + "T00:00:00").toLocaleDateString(
+                        "en-GB",
+                        {
+                            day: "numeric",
+                            month: "short",
+                        },
+                    );
+                }
+            </script>
+
+            <style>
+                .reservation-item:hover {
+                    background-color: var(--bs-light);
+                    cursor: pointer;
+                }
+            </style>
+        </th:block>
+    </body>
+</html>

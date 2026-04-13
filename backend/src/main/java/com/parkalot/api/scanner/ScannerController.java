@@ -1,0 +1,25 @@
+package com.parkalot.api.scanner;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("scanner")
+public class ScannerController {
+
+  private final ScannerRepository repo;
+
+  public ScannerController(ScannerRepository repo) {
+    this.repo = repo;
+  }
+
+  @DeleteMapping("{id}")
+  public ResponseEntity<?> delete(@PathVariable int id) {
+    repo.deleteById(id);
+
+    return ResponseEntity.noContent().build();
+  }
+}
