@@ -109,7 +109,7 @@
                                 type="text"
                                 class="form-control"
                                 name="firstName"
-                                th:value="${item.firstName}"
+                                th:value="${item.firstname}"
                             />
                         </div>
                     </div>
@@ -120,7 +120,7 @@
                                 type="text"
                                 class="form-control"
                                 name="lastName"
-                                th:value="${item.lastName}"
+                                th:value="${item.lastname}"
                             />
                         </div>
                     </div>
@@ -145,12 +145,12 @@
                                 type="checkbox"
                                 class="form-check-input"
                                 name="isCorporate"
-                                th:attr="id=|isCorporate${item.id}|"
-                                th:checked="${item.isCorporate}"
+                                th:attr="id=|iscorporate${item.id}|"
+                                th:checked="${item.iscorporate}"
                             />
                             <label
                                 class="form-check-label"
-                                th:attr="for=|isCorporate${item.id}|"
+                                th:attr="for=|iscorporate${item.id}|"
                                 >Corporate</label
                             >
                         </div>
@@ -181,9 +181,9 @@
                     th:text="${T(com.parkalot.infrastructure.enums.Title).values()[item.title].label}"
                 >
                 </span>
-                <span th:text="${item.firstName}"></span>
-                <span th:text="${item.lastName}"></span>
-                <span th:if="${item.isCorporate}" class="badge bg-primary ms-2"
+                <span th:text="${item.firstname}"></span>
+                <span th:text="${item.lastname}"></span>
+                <span th:if="${item.iscorporate}" class="badge bg-primary ms-2"
                     >Corporate</span
                 >
             </div>

@@ -35,7 +35,7 @@
                             <label class="form-label">Space Type</label>
                             <select
                                 class="form-select"
-                                name="spaceType"
+                                name="spacetype"
                                 id="new_space_type_dropdown"
                             >
                                 <option value="">-- Select Type --</option>
@@ -91,9 +91,9 @@
                             <label class="form-label">Space Type</label>
                             <select
                                 class="form-select"
-                                name="spaceType"
+                                name="spacetype"
                                 th:attr="id=|space_type_dropdown${item.id}|"
-                                th:data-current-space-type="${item.spaceType}"
+                                th:data-current-space-type="${item.spacetype}"
                             >
                                 <option value="">-- Select Type --</option>
                             </select>
@@ -122,9 +122,9 @@
                     th:text="${item.floor != null ? 'Floor ' + item.floor : ''}"
                 ></span>
                 <span
-                    th:if="${item.spaceType != null}"
+                    th:if="${item.spacetype != null}"
                     class="badge bg-secondary ms-2"
-                    th:text="${T(com.parkalot.infrastructure.enums.SpaceType).values()[item.spaceType].label}"
+                    th:text="${T(com.parkalot.infrastructure.enums.SpaceType).values()[item.spacetype].label}"
                 >
                 </span>
                 <span

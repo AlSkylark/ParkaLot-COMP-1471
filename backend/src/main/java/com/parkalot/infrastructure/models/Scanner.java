@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
 public class Scanner extends BaseModel {
 
   @Column(name = "scannertype")
-  Integer ScannerType;
+  Integer scannertype;
 
   @ManyToOne
   @JoinColumn(name = "locationid", nullable = false)
-  private Garage Garage;
+  private Garage garage;
 }

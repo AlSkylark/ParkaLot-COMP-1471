@@ -31,7 +31,7 @@ public class GarageService {
       result.add(
         new GarageDto(
           a.getId(),
-          a.Name,
+          a.name,
           a.getFormattedAddress(),
           availability,
           Optional.empty()

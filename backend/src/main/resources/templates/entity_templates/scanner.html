@@ -39,9 +39,9 @@
                             <label class="form-label">Scanner Type</label>
                             <select
                                 class="form-select"
-                                name="scannerType"
+                                name="scannertype"
                                 th:attr="id=|scanner_type_dropdown${item.id}|"
-                                th:data-current-scanner-type="${item.scannerType}"
+                                th:data-current-scanner-type="${item.scannertype}"
                             >
                                 <option value="">-- Select Type --</option>
                             </select>
@@ -71,8 +71,8 @@
                 ></span>
                 <span
                     class="badge bg-primary ms-2"
-                    th:if="${item.scannerType != null}"
-                    th:text="${T(com.parkalot.infrastructure.enums.ScannerType).values()[item.scannerType].label}"
+                    th:if="${item.scannertype != null}"
+                    th:text="${T(com.parkalot.infrastructure.enums.ScannerType).values()[item.scannertype].label}"
                 >
                 </span>
             </div>
@@ -82,14 +82,14 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", async function () {
-        const [scannerTypes, garages] = await Promise.all([
+        const [scannertypes, garages] = await Promise.all([
             fetch("/api/enums/scanner-types").then((r) => r.json()),
             fetch("/api/garages/dropdown").then((r) => r.json()),
         ]);
 
         populateDropdowns(
             '[id^="scanner_type_dropdown"], #new_scanner_type_dropdown',
-            scannerTypes,
+            scannertypes,
             "currentScannerType",
         );
         populateDropdowns(
