@@ -29,7 +29,13 @@ function Garage() {
             }
         }
         fetchGarage(id);
-    }, []);
+    }, [id]);
+
+    const handleReserveClick = () => {
+        navigate("reserve", {
+            state: { name: garage.name, address: garage.address },
+        });
+    };
 
     return (
         <div className="min-vh-100 bg-light d-flex align-items-start justify-content-center py-5 px-3">
@@ -157,15 +163,22 @@ function Garage() {
                             />
                         </div>
 
-                        {/* CTA */}
-                        <div className="d-flex justify-content-end">
+                        <div className="d-flex justify-content-end gap-2">
                             <button
+                                type="button"
+                                className="btn btn-outline-secondary px-4 py-2 fw-semibold"
+                                onClick={() => navigate(`/garages`)}
+                            >
+                                Go Back
+                            </button>
+                            <button
+                                onClick={handleReserveClick}
                                 className={`btn ${garage.availability === "FULL" ? "btn-secondary" : "btn-primary"} px-4 py-2 fw-semibold`}
                                 disabled={garage.availability === "FULL"}
                             >
                                 {garage.availability === "FULL"
                                     ? "Currently Full"
-                                    : "Make a Reservation"}
+                                    : "Make a reservation"}
                             </button>
                         </div>
                     </Card.Body>

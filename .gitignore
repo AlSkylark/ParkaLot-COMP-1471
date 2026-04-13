@@ -63,3 +63,4 @@ build/
 
 ## React dist ##
 frontend/dist/
+application-local.yaml
