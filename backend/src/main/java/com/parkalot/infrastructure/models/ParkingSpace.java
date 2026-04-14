@@ -1,5 +1,6 @@
 package com.parkalot.infrastructure.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -29,6 +30,6 @@ public class ParkingSpace extends BaseModel {
   @JoinColumn(name = "locationid")
   public Garage garage;
 
-  @OneToOne(mappedBy = "parkingspace")
+  @OneToOne(mappedBy = "parkingspace", cascade = CascadeType.ALL)
   public SensorDevice sensor;
 }

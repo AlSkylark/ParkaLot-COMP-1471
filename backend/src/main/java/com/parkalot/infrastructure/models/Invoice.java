@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "contracts")
+@Table(name = "invoices")
 public class Invoice extends BaseModel {
 
   @Column(name = "datecreated", nullable = false)

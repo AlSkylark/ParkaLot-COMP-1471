@@ -10,4 +10,14 @@
 
         <div th:replace="${content}"></div>
     </body>
+    <script>
+        /**
+         * Returns a YYYY-MM-DD string using the LOCAL calendar date,
+         * avoiding the UTC shift that toISOString() introduces in
+         * timezones east of UTC (e.g. BST = UTC+1).
+         */
+        function localDate(d = new Date()) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+    </script>
 </html>

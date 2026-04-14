@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.parkalot.api.parking_space.ParkingSpaceService;
+import com.parkalot.api.scanner.ScannerRepository;
 import com.parkalot.infrastructure.enums.GarageAvailability;
 import com.parkalot.infrastructure.models.Garage;
 import java.util.ArrayList;
@@ -26,11 +27,17 @@ public class GarageServiceTests {
   @Mock
   private ParkingSpaceService fakeParkingSpaceService;
 
+  private ScannerRepository fakeScannerRepository;
+
   private GarageService service;
 
   @BeforeEach
   void SetUp() {
-    this.service = new GarageService(fakeRepo, fakeParkingSpaceService);
+    this.service = new GarageService(
+      fakeRepo,
+      fakeParkingSpaceService,
+      fakeScannerRepository
+    );
   }
 
   @Test

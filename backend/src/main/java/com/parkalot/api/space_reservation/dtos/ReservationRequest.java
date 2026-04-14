@@ -1,4 +1,4 @@
-package com.parkalot.api.space_reservation;
+package com.parkalot.api.space_reservation.dtos;
 
 import com.parkalot.infrastructure.enums.SpaceType;
 import java.time.LocalDate;

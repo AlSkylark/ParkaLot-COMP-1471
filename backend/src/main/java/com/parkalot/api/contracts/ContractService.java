@@ -1,14 +1,17 @@
 package com.parkalot.api.contracts;
 
+import com.parkalot.api.contracts.dtos.ContractDetailDto;
 import com.parkalot.api.contracts.dtos.GuestData;
 import com.parkalot.api.contracts.dtos.QuoteDto;
+import com.parkalot.api.contracts.dtos.SpaceReservationDetailDto;
 import com.parkalot.api.customer.CustomerRepository;
 import com.parkalot.api.parking_space.ParkingSpaceService;
-import com.parkalot.api.space_reservation.ReservationRequest;
 import com.parkalot.api.space_reservation.SpaceReservationsService;
+import com.parkalot.api.space_reservation.dtos.ReservationRequest;
 import com.parkalot.infrastructure.enums.GarageAvailability;
 import com.parkalot.infrastructure.models.Contract;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -65,7 +68,8 @@ public class ContractService {
         var guestData = new GuestData(
           request.fullName(),
           request.email(),
-          request.address()
+          request.address(),
+          request.carPlate()
         );
         contract.setGuestData(guestData);
       }
@@ -75,7 +79,8 @@ public class ContractService {
     // TODO: More than one space requested
     var spaceReservation = spaceReservationsService.assignParkingSpace(
       garageId,
-      request
+      request,
+      existingCustomer == null
     );
     contract.setSpaceReservations(Set.of(spaceReservation));
 
@@ -104,6 +109,63 @@ public class ContractService {
     repo.save(contract);
 
     return contract;
+  }
+
+  public Optional<ContractDetailDto> getContractDetail(int id) {
+    return repo
+      .findById(id)
+      .map(contract -> {
+        String customerName = null;
+        if (contract.getCustomer() != null) {
+          customerName =
+            contract.getCustomer().getFirstname() +
+            " " +
+            contract.getCustomer().getLastname();
+        }
+
+        List<SpaceReservationDetailDto> reservations = contract
+          .getSpaceReservations()
+          .stream()
+          .map(r ->
+            new SpaceReservationDetailDto(
+              r.getId(),
+              r.getSpace().getCode(),
+              r.getSpace().getFloor(),
+              r.getDatefrom(),
+              r.getDateto(),
+              r.getTimefrom(),
+              r.getTimeto(),
+              r.getCar() != null ? r.getCar().getPlateno() : null,
+              r.getPricetype().getName()
+            )
+          )
+          .toList();
+
+        return new ContractDetailDto(
+          contract.getId(),
+          contract.getContractNumber(),
+          contract.getDateCreated(),
+          contract.getDateAgreed(),
+          contract.isQuote(),
+          contract.isRecurrent(),
+          customerName,
+          contract.getGuestData(),
+          reservations
+        );
+      });
+  }
+
+  public void updateContract(int id, boolean isRecurrent, GuestData guestData) {
+    var contract = repo.findById(id).orElseThrow();
+    contract.setRecurrent(isRecurrent);
+    if (contract.getGuestData() != null && guestData != null) {
+      contract.setGuestData(guestData);
+    }
+    repo.save(contract);
+  }
+
+  public void cancelContract(int id) {
+    repo.deleteById(id);
   }
 
   public String generateContractNumber(int length) {

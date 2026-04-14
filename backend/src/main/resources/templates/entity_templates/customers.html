@@ -173,6 +173,100 @@
                         </div>
                     </div>
                 </div>
+
+                <hr class="my-3" />
+
+                <!-- Cars -->
+                <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                >
+                    <h6 class="mb-0">Cars</h6>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        th:onclick="|toggleAddCar(${item.id})|"
+                    >
+                        + Add Car
+                    </button>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body text-center py-4">
+                        <!-- Add car form -->
+                        <div
+                            th:id="|add-car-form-${item.id}|"
+                            class="card mb-4 d-none shadow-sm border-1"
+                        >
+                            <div class="card-body">
+                                <div
+                                    class="d-flex flex-wrap align-items-center gap-3"
+                                >
+                                    <div
+                                        class="d-flex align-items-center gap-2"
+                                    >
+                                        <label
+                                            class="form-label small mb-0 text-nowrap fw-semibold"
+                                            >Plate</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="form-control form-control-sm"
+                                            th:id="|car-plate-${item.id}|"
+                                            placeholder="e.g. AB12 CDE"
+                                        />
+                                    </div>
+                                    <div
+                                        class="d-flex align-items-center gap-2"
+                                    >
+                                        <label
+                                            class="form-label small mb-0 text-nowrap fw-semibold"
+                                            >Type</label
+                                        >
+                                        <select
+                                            class="form-select form-select-sm"
+                                            th:id="|car-type-${item.id}|"
+                                        >
+                                            <option value="0">Standard</option>
+                                            <option value="1">Electric</option>
+                                            <option value="2">
+                                                Motorcycle
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex gap-2 ms-auto">
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-primary"
+                                            th:onclick="|addCar(${item.id})|"
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            th:onclick="|toggleAddCar(${item.id})|"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    th:id="|car-error-${item.id}|"
+                                    class="alert alert-danger alert-sm mt-2 py-1 d-none small"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <!-- Cars list (populated via fetch) -->
+                        <div th:id="|cars-list-${item.id}|">
+                            <div class="text-muted small text-center py-2">
+                                <span
+                                    class="spinner-border spinner-border-sm me-1"
+                                ></span>
+                                Loading cars&hellip;
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div th:fragment="customer_label">
@@ -208,5 +302,117 @@
             titles,
             "currentTitle",
         );
+
+        // Lazy-load cars when a customer accordion opens
+        document.querySelectorAll('[id^="collapse"]').forEach((el) => {
+            el.addEventListener("show.bs.collapse", function () {
+                const customerId = this.id.replace("collapse", "");
+                loadCars(customerId);
+            });
+        });
     });
+
+    // ── Cars ───────────────────────────────────────────────
+    const CAR_TYPE_LABELS = ["Standard", "Electric", "Motorcycle"];
+    const CAR_TYPE_BADGES = [
+        "bg-primary",
+        "bg-success",
+        "bg-warning text-dark",
+    ];
+
+    async function loadCars(customerId) {
+        const list = document.getElementById(`cars-list-${customerId}`);
+        try {
+            const cars = await fetch(`/api/customers/${customerId}/cars`).then(
+                (r) => r.json(),
+            );
+            renderCars(customerId, cars);
+        } catch {
+            list.innerHTML = `<small class="text-danger">Failed to load cars.</small>`;
+        }
+    }
+
+    function renderCars(customerId, cars) {
+        const list = document.getElementById(`cars-list-${customerId}`);
+        if (cars.length === 0) {
+            list.innerHTML = `<small class="text-muted">No cars registered.</small>`;
+            return;
+        }
+        list.innerHTML = `<div class="d-flex flex-wrap gap-2">${cars
+            .map(
+                (c) => `
+            <div class="card">
+                <div class="card-body py-1 px-2 d-flex align-items-center gap-2">
+                    <small class="fw-bold">${c.plateNo}</small>
+                    <span class="badge ${CAR_TYPE_BADGES[c.type] ?? "bg-secondary"}"
+                          style="font-size:0.6rem;">
+                        ${CAR_TYPE_LABELS[c.type] ?? "Unknown"}
+                    </span>
+                    <button type="button" class="btn-close" style="font-size:0.5rem;"
+                            onclick="deleteCar(${customerId}, ${c.id})"></button>
+                </div>
+            </div>
+        `,
+            )
+            .join("")}</div>`;
+    }
+
+    function toggleAddCar(customerId) {
+        document
+            .getElementById(`add-car-form-${customerId}`)
+            .classList.toggle("d-none");
+    }
+
+    async function addCar(customerId) {
+        const plateno = document
+            .getElementById(`car-plate-${customerId}`)
+            .value.trim()
+            .toUpperCase();
+        const cartype = parseInt(
+            document.getElementById(`car-type-${customerId}`).value,
+        );
+        const errorEl = document.getElementById(`car-error-${customerId}`);
+
+        if (!plateno) {
+            errorEl.textContent = "Plate number is required.";
+            errorEl.classList.remove("d-none");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/customers/${customerId}/cars`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ plateNo: plateno, carType: cartype }),
+            });
+            if (!res.ok) throw new Error(await res.text());
+            errorEl.classList.add("d-none");
+            document.getElementById(`car-plate-${customerId}`).value = "";
+            toggleAddCar(customerId);
+            await loadCars(customerId);
+        } catch (e) {
+            errorEl.textContent =
+                "Failed to add car. Is the plate already registered?";
+            errorEl.classList.remove("d-none");
+        }
+    }
+
+    async function deleteCar(customerId, carId) {
+        if (
+            !confirm(
+                "Remove this car from the customer? This cannot be undone.",
+            )
+        )
+            return;
+        try {
+            const res = await fetch(
+                `/api/customers/${customerId}/cars/${carId}`,
+                { method: "DELETE" },
+            );
+            if (!res.ok) throw new Error();
+            await loadCars(customerId);
+        } catch {
+            alert("Failed to remove car.");
+        }
+    }
 </script>

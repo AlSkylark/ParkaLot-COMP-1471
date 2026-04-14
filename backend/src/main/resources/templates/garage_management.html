@@ -1,0 +1,444 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <div class="d-flex h-100" style="min-height: calc(100vh - 56px)">
+            <!-- Left Panel: Garage List -->
+            <div
+                class="border-end bg-light"
+                style="width: 220px; min-width: 220px"
+            >
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0 fw-bold">Garages</h6>
+                </div>
+                <div class="list-group list-group-flush" id="garage-list">
+                    <!-- Populated via fetch -->
+                </div>
+            </div>
+
+            <!-- Centre Panel: Space Map -->
+            <div class="flex-grow-1 d-flex flex-column">
+                <!-- Garage Title + Floor Selector -->
+                <div
+                    class="p-3 border-bottom d-flex justify-content-between align-items-center"
+                >
+                    <div>
+                        <h5 class="mb-0" id="garage-title">Select a garage</h5>
+                        <small class="text-muted" id="garage-address"></small>
+                    </div>
+                    <div class="btn-group" id="floor-selector">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Week Strip -->
+                <div class="p-3 border-bottom d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-secondary px-2" onclick="shiftWeek(-7)" title="Previous week">&#8249;</button>
+                    <div class="d-flex gap-2 flex-grow-1" id="week-strip">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary px-2" onclick="shiftWeek(7)" title="Next week">&#8250;</button>
+                </div>
+
+                <!-- Legend + Filters -->
+                <div
+                    class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center"
+                >
+                    <div class="d-flex gap-3">
+                        <small
+                            ><span class="badge bg-success">●</span> Free</small
+                        >
+                        <small
+                            ><span class="badge bg-warning text-dark">●</span>
+                            Reserved</small
+                        >
+                        <small
+                            ><span class="badge bg-danger">●</span>
+                            Occupied</small
+                        >
+                        <small
+                            ><span class="badge bg-secondary">●</span>
+                            Unavailable</small
+                        >
+                    </div>
+                    <div class="btn-group btn-group-sm" id="filter-bar">
+                        <button
+                            class="btn btn-outline-secondary active"
+                            onclick="filterSpaces('all', event)"
+                        >
+                            All
+                        </button>
+                        <button
+                            class="btn btn-outline-secondary"
+                            onclick="filterSpaces('electric', event)"
+                        >
+                            ⚡ Electric
+                        </button>
+                        <button
+                            class="btn btn-outline-secondary"
+                            onclick="filterSpaces('free', event)"
+                        >
+                            Free only
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Space Map -->
+                <div class="flex-grow-1 overflow-auto p-3" id="space-map">
+                    <div class="text-center text-muted mt-5">
+                        <p>Select a garage to view parking spaces</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Reservations -->
+            <div
+                class="border-start d-flex flex-column"
+                style="width: 300px; min-width: 300px"
+            >
+                <div
+                    class="p-3 border-bottom d-flex justify-content-between align-items-center"
+                >
+                    <h6 class="mb-0 fw-bold">Reservations</h6>
+                    <small class="text-muted" id="reservation-date-label"
+                        >Today</small
+                    >
+                </div>
+                <div class="overflow-auto flex-grow-1" id="reservation-list">
+                    <div class="text-center text-muted p-4">
+                        <small>Select a garage to view reservations</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky bottom action bar -->
+        <div class="border-top bg-white py-3 px-4"
+             style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030">
+            <a href="/" class="btn btn-outline-secondary">&#8592; Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let selectedGarageId = null;
+    let selectedDate = localDate();
+    let selectedFloor = null;
+    let baseSpaces = [];
+    let allSpaces = [];
+    let allReservations = [];
+    let activeFilter = "all";
+    let weekOffset = 0;
+
+    // ── Bootstrap ──────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", async function () {
+        await loadGarages();
+        renderWeekStrip();
+    });
+
+    // ── Garages ────────────────────────────────────────────
+    async function loadGarages() {
+        const garages = await fetch("/api/garages/dropdown").then((r) =>
+            r.json(),
+        );
+        const list = document.getElementById("garage-list");
+        list.innerHTML = "";
+
+        garages.forEach((g) => {
+            const btn = document.createElement("button");
+            btn.className = "list-group-item list-group-item-action";
+            btn.textContent = g.label;
+            btn.onclick = () => selectGarage(g.id, g.label, btn);
+            list.appendChild(btn);
+        });
+    }
+
+    async function selectGarage(id, label, btn) {
+        selectedGarageId = id;
+
+        document
+            .querySelectorAll("#garage-list button")
+            .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("garage-title").textContent = label;
+
+        const [spaces, reservations] = await Promise.all([
+            fetch(`/api/garages/${id}/spaces`).then((r) => r.json()),
+            fetch(`/api/garages/${id}/reservations?date=${selectedDate}`).then(
+                (r) => r.json(),
+            ),
+        ]);
+
+        baseSpaces = spaces;
+        allSpaces = spaces;
+        allReservations = reservations;
+
+        reconcileSpaceStatuses();
+
+        const floors = [
+            ...new Set(allSpaces.map((s) => s.code.substring(0, 2))),
+        ].sort();
+        selectedFloor = floors[0] ?? null;
+
+        renderFloorSelector(floors);
+        renderSpaces();
+        renderReservations(allReservations);
+    }
+
+    // ── Spaces ─────────────────────────────────────────────
+    function renderFloorSelector(floors) {
+        const selector = document.getElementById("floor-selector");
+        selector.innerHTML = "";
+
+        floors.forEach((floor) => {
+            const btn = document.createElement("button");
+            btn.className =
+                "btn btn-sm " +
+                (floor === selectedFloor
+                    ? "btn-primary"
+                    : "btn-outline-secondary");
+            btn.textContent = floor;
+            btn.onclick = () => {
+                selectedFloor = floor;
+                document
+                    .querySelectorAll("#floor-selector button")
+                    .forEach((b) => {
+                        b.className = "btn btn-sm btn-outline-secondary";
+                    });
+                btn.className = "btn btn-sm btn-primary";
+                renderSpaces();
+            };
+            selector.appendChild(btn);
+        });
+    }
+
+    function reconcileSpaceStatuses() {
+        const now = new Date();
+        const selectedDateObj = new Date(selectedDate + "T00:00:00");
+        const isToday = selectedDate === localDate(now);
+
+        allSpaces = baseSpaces.map((space) => {
+            const reservation = allReservations.find(
+                (r) => r.spaceCode === space.code,
+            );
+            if (!reservation) return { ...space, isMultiDay: false };
+
+            const datefrom = new Date(reservation.datefrom + "T00:00:00");
+            const dateto = new Date(reservation.dateto + "T00:00:00");
+            const isMultiDay = reservation.datefrom !== reservation.dateto;
+
+            if (isMultiDay) {
+                if (selectedDateObj >= datefrom && selectedDateObj <= dateto) {
+                    return { ...space, status: "RESERVED", isMultiDay: true };
+                }
+            } else {
+                if (isToday && reservation.timefrom && reservation.timeto) {
+                    const [fromH, fromM] = reservation.timefrom
+                        .split(":")
+                        .map(Number);
+                    const [toH, toM] = reservation.timeto
+                        .split(":")
+                        .map(Number);
+                    const from = new Date();
+                    from.setHours(fromH, fromM, 0);
+                    const to = new Date();
+                    to.setHours(toH, toM, 0);
+                    if (now >= from && now <= to) {
+                        return {
+                            ...space,
+                            status: "RESERVED",
+                            isMultiDay: false,
+                        };
+                    }
+                } else if (!isToday) {
+                    return { ...space, status: "RESERVED", isMultiDay: false };
+                }
+            }
+
+            return { ...space, isMultiDay: false };
+        });
+    }
+
+    function renderSpaces() {
+        const map = document.getElementById("space-map");
+        map.innerHTML = "";
+
+        const today = localDate();
+        const isPast = selectedDate < today;
+
+        if (isPast) {
+            const banner = document.createElement("div");
+            banner.className = "alert alert-secondary py-1 px-3 mb-3 d-flex align-items-center gap-2";
+            banner.style.fontSize = "0.8rem";
+            banner.innerHTML = `<span>&#128337;</span> Viewing historical snapshot for ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short", year: "numeric" })}`;
+            map.appendChild(banner);
+        }
+
+        const filtered = allSpaces.filter((s) => {
+            const floorMatch = s.code.startsWith(selectedFloor);
+            const typeMatch =
+                activeFilter === "electric" ? s.type === "ELECTRIC" : true;
+            const statusMatch =
+                activeFilter === "free" ? s.status === "FREE" : true;
+            return floorMatch && typeMatch && statusMatch;
+        });
+
+        if (filtered.length === 0) {
+            map.innerHTML =
+                '<div class="text-center text-muted mt-4"><small>No spaces found</small></div>';
+            return;
+        }
+
+        const grid = document.createElement("div");
+        grid.className = "row g-2";
+        if (isPast) grid.style.opacity = "0.5";
+
+        filtered.forEach((space) => {
+            const colour = isPast ? "secondary" : statusColour(space.status);
+            const col = document.createElement("div");
+            col.className = "col-6 col-md-3 col-lg-2";
+            col.innerHTML = `
+                <div class="card h-100 border-${colour}">
+                    <div class="card-body py-2 px-3">
+                        <small class="fw-bold d-block">${space.code}</small>
+                        <span class="badge bg-${colour}" style="font-size: 0.6rem;">
+                            ${statusLabel(space.status)}
+                        </span>
+                        ${space.type === "ELECTRIC" ? '<small class="d-block mt-1">⚡</small>' : ""}
+                        ${space.status === "RESERVED" && space.isMultiDay ? '<small class="d-block text-muted" style="font-size: 0.6rem;">📅 Multi-day</small>' : ""}
+                    </div>
+                </div>`;
+            grid.appendChild(col);
+        });
+
+        map.appendChild(grid);
+    }
+
+    function filterSpaces(filter, event) {
+        activeFilter = filter;
+        document
+            .querySelectorAll("#filter-bar button")
+            .forEach((b) => b.classList.remove("active"));
+        event.target.classList.add("active");
+        renderSpaces();
+    }
+
+    function statusColour(status) {
+        const colours = {
+            FREE: "success",
+            OCCUPIED: "danger",
+            RESERVED: "warning",
+            UNAVAILABLE: "secondary",
+        };
+        return colours[status] ?? "secondary";
+    }
+
+    function statusLabel(status) {
+        const labels = {
+            FREE: "Free",
+            OCCUPIED: "Occupied",
+            RESERVED: "Reserved",
+            UNAVAILABLE: "Unavailable",
+        };
+        return labels[status] ?? "Unknown";
+    }
+
+    // ── Week Strip ─────────────────────────────────────────
+    function renderWeekStrip() {
+        const strip = document.getElementById("week-strip");
+        strip.innerHTML = "";
+
+        const today = new Date();
+        const base = new Date(today);
+        base.setDate(today.getDate() + weekOffset);
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(base);
+            date.setDate(base.getDate() + i);
+            const dateStr = localDate(date);
+            const isSelected = dateStr === selectedDate;
+            const isPast = dateStr < localDate(today);
+
+            const btn = document.createElement("button");
+            btn.className = `btn btn-sm ${isSelected ? "btn-primary" : isPast ? "btn-outline-secondary opacity-50" : "btn-outline-secondary"}`;
+            btn.style.minWidth = "64px";
+            btn.innerHTML = `
+                <div style="font-size: 0.65rem;">${date.toLocaleDateString("en-GB", { weekday: "short" })}</div>
+                <div class="fw-bold">${date.getDate()}</div>`;
+            btn.onclick = () => selectDate(dateStr, btn);
+            strip.appendChild(btn);
+        }
+    }
+
+    async function shiftWeek(delta) {
+        weekOffset += delta;
+
+        const today = new Date();
+        const base = new Date(today);
+        base.setDate(today.getDate() + weekOffset);
+        const weekStart = localDate(base);
+        const weekEnd = new Date(base);
+        weekEnd.setDate(base.getDate() + 6);
+        const weekEndStr = localDate(weekEnd);
+
+        // If the selected date falls outside the new window, snap to week start
+        if (selectedDate < weekStart || selectedDate > weekEndStr) {
+            selectedDate = weekStart;
+            updateDateLabel(selectedDate);
+            if (selectedGarageId) await loadDateData();
+        }
+
+        renderWeekStrip();
+    }
+
+    async function selectDate(date, btn) {
+        selectedDate = date;
+        document.querySelectorAll("#week-strip button").forEach((b) => {
+            b.className = b.className.replace("btn-primary", "btn-outline-secondary");
+            b.style.minWidth = "64px";
+        });
+        btn.className = `btn btn-sm btn-primary`;
+        btn.style.minWidth = "64px";
+
+        updateDateLabel(date);
+        if (selectedGarageId) await loadDateData();
+    }
+
+    function updateDateLabel(date) {
+        document.getElementById("reservation-date-label").textContent =
+            new Date(date + "T00:00:00").toLocaleDateString("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "short",
+            });
+    }
+
+    async function loadDateData() {
+        allReservations = await fetch(
+            `/api/garages/${selectedGarageId}/reservations?date=${selectedDate}`,
+        ).then((r) => r.json());
+        reconcileSpaceStatuses();
+        renderSpaces();
+        renderReservations(allReservations);
+    }
+
+    // ── Reservations ───────────────────────────────────────
+    function renderReservations(reservations) {
+        const list = document.getElementById("reservation-list");
+
+        if (reservations.length === 0) {
+            list.innerHTML =
+                '<div class="text-center text-muted p-4"><small>No reservations for this day</small></div>';
+            return;
+        }
+
+        list.innerHTML = "";
+        reservations.forEach((r) => {
+            const item = document.createElement("a");
+            item.href = `/reservations/${r.id}`;
+            item.className = "text-decoration-none";
+            item.innerHTML = `<div class="p-3 border-bottom reservation-item">${buildReservationItemHtml(r)}</div>`;
+            list.appendChild(item);
+        });
+    }
+</script>
+
+<th:block th:replace="~{fragments/reservation_card :: support}"></th:block>

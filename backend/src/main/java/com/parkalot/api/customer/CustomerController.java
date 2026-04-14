@@ -1,15 +1,21 @@
 package com.parkalot.api.customer;
 
+import com.parkalot.api.car.dtos.CarCreateRequest;
+import com.parkalot.api.car.dtos.CarDto;
 import com.parkalot.infrastructure.security.CustomerAuthService;
 import com.parkalot.infrastructure.security.JwtUtil;
+import io.micrometer.core.ipc.http.HttpSender.Response;
+import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 record SignInRequest(String email) {}
@@ -53,5 +59,21 @@ public class CustomerController {
     }
 
     return ResponseEntity.ok(Map.of("token", jwt.generate(req.email())));
+  }
+
+  @GetMapping("/customers/{id}/cars")
+  public ResponseEntity<List<CarDto>> getCars(@PathVariable int id) {
+    var result = service.getCars(id);
+    return ResponseEntity.ok(result);
+  }
+
+  @PostMapping("/customers/{id}/cars")
+  public ResponseEntity<CarDto> addCar(
+    @PathVariable int id,
+    @RequestBody CarCreateRequest request
+  ) {
+    var result = service.addCar(id, request);
+
+    return ResponseEntity.ok(result);
   }
 }

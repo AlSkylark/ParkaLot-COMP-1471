@@ -1,0 +1,752 @@
+<div th:replace="~{ layout :: layout(~{::content}) }">
+    <div th:fragment="content">
+        <!-- Sticky top bar -->
+        <div class="border-bottom bg-white sticky-top shadow-sm">
+            <div class="container-lg py-2 d-flex align-items-center gap-3">
+                <h5 class="mb-0" id="contract-title">Loading&hellip;</h5>
+                <div id="contract-badges" class="d-flex gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div
+            class="container-lg py-4 pb-5 mb-4"
+            id="page-content"
+            style="display: none !important"
+        >
+            <!-- Contract Details -->
+            <div class="card mb-4">
+                <div class="card-header fw-bold">Contract Details</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-md-3">
+                            <div class="text-muted small">Contract #</div>
+                            <div id="detail-number" class="fw-semibold"></div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="text-muted small">Created</div>
+                            <div id="detail-created"></div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="text-muted small">Agreed</div>
+                            <div id="detail-agreed"></div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="text-muted small">Recurrent</div>
+                            <div id="detail-recurrent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Customer / Guest -->
+                    <hr />
+                    <div id="customer-section"></div>
+                </div>
+            </div>
+
+            <!-- Space Reservations -->
+            <div class="card mb-4">
+                <div
+                    class="card-header fw-bold d-flex justify-content-between align-items-center"
+                >
+                    Space Reservations
+                    <span class="badge bg-secondary" id="reservation-count"
+                        >0</span
+                    >
+                </div>
+                <div class="card-body">
+                    <div class="row g-3" id="reservation-cards">
+                        <div class="col-12 text-muted text-center py-3">
+                            Loading reservations&hellip;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoices WIP -->
+            <div class="card mb-4">
+                <div
+                    class="card-header fw-bold d-flex align-items-center gap-2"
+                >
+                    Invoices
+                    <span
+                        class="badge bg-warning text-dark"
+                        style="font-size: 0.65rem"
+                        >WIP</span
+                    >
+                </div>
+                <div class="card-body text-center py-4 text-muted">
+                    <div
+                        class="border border-dashed rounded p-4"
+                        style="border-style: dashed !important; opacity: 0.6"
+                    >
+                        <div style="font-size: 2rem">&#128424;</div>
+                        <p class="mb-1 fw-semibold">
+                            Invoice management coming soon
+                        </p>
+                        <small
+                            >Invoice number &bull; Amount &bull; Status &bull;
+                            Payment date</small
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading / error state -->
+        <div class="text-center py-5" id="loading-state">
+            <div class="spinner-border text-secondary" role="status"></div>
+        </div>
+        <div class="text-center py-5 text-danger d-none" id="error-state">
+            <p>Could not load reservation.</p>
+            <a href="/garages/manage" class="btn btn-sm btn-outline-secondary"
+                >&#8592; Back</a
+            >
+        </div>
+
+        <!-- Sticky bottom action bar -->
+        <div
+            class="border-top bg-white py-3 px-4 d-flex justify-content-between align-items-center"
+            style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030"
+        >
+            <a href="/garages/manage" class="btn btn-outline-secondary"
+                >&#8592; Back to Garage Management</a
+            >
+            <div class="d-flex gap-2">
+                <button
+                    id="btn-update-contract"
+                    class="btn btn-primary"
+                    onclick="openUpdateModal()"
+                >
+                    Update Contract
+                </button>
+                <button
+                    id="btn-cancel-contract"
+                    class="btn btn-danger"
+                    onclick="openCancelModal()"
+                >
+                    Cancel Contract
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Update Contract Modal ───────────────────────────── -->
+        <div class="modal fade" id="updateModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Contract</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                id="update-recurrent"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="update-recurrent"
+                                >Recurrent contract</label
+                            >
+                        </div>
+                        <!-- Guest data fields (shown only for guest bookings) -->
+                        <div id="guest-edit-fields" class="d-none">
+                            <hr />
+                            <p class="text-muted small mb-2">
+                                Guest Information
+                            </p>
+                            <div class="mb-3">
+                                <label class="form-label small"
+                                    >Full Name</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="update-guest-name"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Email</label>
+                                <input
+                                    type="email"
+                                    class="form-control form-control-sm"
+                                    id="update-guest-email"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Address</label>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="update-guest-address"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small"
+                                    >Car plate</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="update-guest-car"
+                                />
+                            </div>
+                        </div>
+                        <div
+                            id="update-error"
+                            class="alert alert-danger d-none"
+                        ></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="submitUpdate()"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Cancel Contract Modal ──────────────────────────── -->
+        <div class="modal fade" id="cancelModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-danger">Cancel Contract</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Are you sure you want to cancel contract
+                            <strong id="cancel-contract-number"></strong>?
+                        </p>
+                        <p class="text-muted small mb-0">
+                            This will also remove all associated space
+                            reservations and cannot be undone.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Go Back
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="submitCancel()"
+                        >
+                            Yes, Cancel Contract
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Cancel Reservation Modal ───────────────────────── -->
+        <div class="modal fade" id="cancelReservationModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-danger">
+                            Cancel Reservation
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Cancel reservation for space
+                            <strong id="cancel-res-space"></strong>?
+                        </p>
+                        <p class="text-muted small mb-0">
+                            This cannot be undone. If this is the last
+                            reservation on the contract, the contract itself
+                            will become empty.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Go Back
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="submitCancelReservation()"
+                        >
+                            Yes, Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Edit Reservation Modal ─────────────────────────── -->
+        <div class="modal fade" id="editReservationModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            Edit Reservation &mdash;
+                            <span id="edit-res-space"></span>
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small"
+                                    >Date From</label
+                                >
+                                <input
+                                    type="date"
+                                    class="form-control form-control-sm"
+                                    id="edit-datefrom"
+                                />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Date To</label>
+                                <input
+                                    type="date"
+                                    class="form-control form-control-sm"
+                                    id="edit-dateto"
+                                />
+                            </div>
+                        </div>
+                        <div id="edit-time-section" class="d-none">
+                            <hr class="my-3" />
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="form-label small"
+                                        >Time From</label
+                                    >
+                                    <input
+                                        type="time"
+                                        class="form-control form-control-sm"
+                                        id="edit-timefrom"
+                                    />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small"
+                                        >Time To</label
+                                    >
+                                    <input
+                                        type="time"
+                                        class="form-control form-control-sm"
+                                        id="edit-timeto"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            id="edit-res-error"
+                            class="alert alert-danger d-none mt-3"
+                        ></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="submitEditReservation()"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Toast ──────────────────────────────────────────── -->
+        <div
+            class="position-fixed bottom-0 start-50 translate-middle-x p-3"
+            style="z-index: 1100"
+        >
+            <div
+                id="toast"
+                class="toast align-items-center border-0"
+                role="alert"
+            >
+                <div class="d-flex">
+                    <div class="toast-body" id="toast-body"></div>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white me-2 m-auto text-white"
+                        data-bs-dismiss="toast"
+                    ></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const contractId = [[${contractId}]];
+    let contractData = null;
+    let pendingCancelReservationId = null;
+    let pendingEditReservation = null;
+
+    // ── Bootstrap ──────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", () => loadContract());
+
+    // ── Load ───────────────────────────────────────────────
+    async function loadContract() {
+        try {
+            const res = await fetch(`/api/contracts/${contractId}`);
+            if (!res.ok) throw new Error("Not found");
+            contractData = await res.json();
+            renderContract(contractData);
+            document.getElementById("loading-state").classList.add("d-none");
+            document.getElementById("page-content").style.removeProperty("display");
+        } catch (e) {
+            document.getElementById("loading-state").classList.add("d-none");
+            document.getElementById("error-state").classList.remove("d-none");
+        }
+    }
+
+    // ── Render ─────────────────────────────────────────────
+    function renderContract(c) {
+        // Top bar
+        document.getElementById("contract-title").textContent = `Contract #${c.contractNumber}`;
+        const badges = document.getElementById("contract-badges");
+        if (c.isQuote) {
+            badges.innerHTML = `<span class="badge bg-warning text-dark">Quote</span>`;
+        } else {
+            badges.innerHTML = `<span class="badge bg-success">Active</span>`;
+        }
+        if (c.isRecurrent) {
+            badges.innerHTML += `<span class="badge bg-info text-dark">Recurrent</span>`;
+        }
+
+        // Details
+        document.getElementById("detail-number").textContent = c.contractNumber;
+        document.getElementById("detail-created").textContent = formatDateTime(c.dateCreated);
+        document.getElementById("detail-agreed").textContent = c.dateAgreed ? formatDateTime(c.dateAgreed) : "—";
+        document.getElementById("detail-recurrent").innerHTML = c.isRecurrent
+            ? `<span class="badge bg-info text-dark">Yes</span>`
+            : `<span class="badge bg-secondary">No</span>`;
+
+        // Customer / Guest
+        const customerSection = document.getElementById("customer-section");
+        if (c.customerName) {
+            customerSection.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary">Customer</span>
+                    <span class="fw-semibold">${c.customerName}</span>
+                </div>`;
+        } else if (c.guestData) {
+            customerSection.innerHTML = `
+                <div class="mb-2"><span class="badge bg-secondary">Guest Booking</span></div>
+                <div class="row g-2">
+                    <div class="col-sm-3">
+                        <div class="text-muted small">Name</div>
+                        <div>${c.guestData.fullName ?? "—"}</div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="text-muted small">Email</div>
+                        <div>${c.guestData.email ?? "—"}</div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="text-muted small">Address</div>
+                        <div>${c.guestData.address ?? "—"}</div>
+                    </div>
+                        <div class="col-sm-3">
+                        <div class="text-muted small">Car plate</div>
+                        <div>${c.guestData.carPlate ?? "—"}</div>
+                    </div>
+                </div>`;
+        } else {
+            customerSection.innerHTML = `<span class="text-muted small">No customer information</span>`;
+        }
+
+        // Reservation cards
+        renderReservationCards(c.reservations);
+    }
+
+    function renderReservationCards(reservations) {
+        const container = document.getElementById("reservation-cards");
+        document.getElementById("reservation-count").textContent = reservations.length;
+
+        if (reservations.length === 0) {
+            container.innerHTML = `<div class="col-12 text-muted text-center py-3">No space reservations found.</div>`;
+            return;
+        }
+
+        container.innerHTML = "";
+        let allEnded = true;
+        reservations.forEach(r => {
+            const isMultiDay = r.datefrom !== r.dateto;
+            const status = reservationStatus(r);
+            const ended = status.label === "Ended";
+            if (!ended) allEnded = false;
+
+            const timeDisplay = isMultiDay
+                ? `&#128197; ${formatDate(r.datefrom)} &rarr; ${formatDate(r.dateto)}`
+                : `&#128336; ${r.timefrom ?? "—"} &rarr; ${r.timeto ?? "—"}`;
+
+            const col = document.createElement("div");
+            col.className = "col-12 col-md-6 col-lg-4";
+            col.innerHTML = `
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="fw-bold">${r.spaceCode}</div>
+                                <small class="text-muted">Floor ${r.spaceFloor ?? "—"}</small>
+                            </div>
+                            <div class="d-flex flex-column align-items-end gap-1">
+                                <span class="badge ${isMultiDay ? "bg-primary" : "bg-info text-dark"}" style="font-size:0.6rem;">
+                                    ${isMultiDay ? "Multi-day" : "Single day"}
+                                </span>
+                                <span class="badge ${status.cls}" style="font-size:0.6rem;">${status.label}</span>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block">${timeDisplay}</small>
+                        <small class="text-muted d-block mt-1">${r.priceTypeName ?? ""}</small>
+                        <small class="d-block mt-1">
+                            ${r.carPlate
+                                ? `&#128663; <span class="badge bg-light text-dark border">${r.carPlate}</span>`
+                                : `<span class="text-muted">No vehicle</span>`}
+                        </small>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary flex-grow-1"
+                                onclick='openEditReservationModal(${JSON.stringify(r)})'
+                                ${ended ? "disabled" : ""}>
+                            Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger flex-grow-1"
+                                onclick="openCancelReservationModal(${r.id}, '${r.spaceCode}')"
+                                ${ended ? "disabled" : ""}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>`;
+            container.appendChild(col);
+        });
+
+        const contractEnded = allEnded;
+        document.getElementById("btn-update-contract").disabled = contractEnded;
+        document.getElementById("btn-cancel-contract").disabled = contractEnded;
+    }
+
+    // ── Update contract ────────────────────────────────────
+    function openUpdateModal() {
+        if (!contractData) return;
+        document.getElementById("update-recurrent").checked = contractData.isRecurrent;
+
+        const guestFields = document.getElementById("guest-edit-fields");
+        if (contractData.guestData) {
+            guestFields.classList.remove("d-none");
+            document.getElementById("update-guest-name").value = contractData.guestData.fullName ?? "";
+            document.getElementById("update-guest-email").value = contractData.guestData.email ?? "";
+            document.getElementById("update-guest-address").value = contractData.guestData.address ?? "";
+            document.getElementById("update-guest-car").value = contractData.guestData.carPlate ?? "";
+        } else {
+            guestFields.classList.add("d-none");
+        }
+        document.getElementById("update-error").classList.add("d-none");
+        new bootstrap.Modal(document.getElementById("updateModal")).show();
+    }
+
+    async function submitUpdate() {
+        const isRecurrent = document.getElementById("update-recurrent").checked;
+        let guestData = null;
+        if (contractData.guestData) {
+            guestData = {
+                fullName: document.getElementById("update-guest-name").value,
+                email: document.getElementById("update-guest-email").value,
+                address: document.getElementById("update-guest-address").value,
+                carPlate: document.getElementById("update-guest-car").value
+            };
+        }
+
+        try {
+            const res = await fetch(`/api/contracts/${contractId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isRecurrent, guestData }),
+            });
+            if (!res.ok) throw new Error();
+            bootstrap.Modal.getInstance(document.getElementById("updateModal")).hide();
+            showToast("Contract updated successfully.", "success");
+            await loadContract();
+        } catch {
+            document.getElementById("update-error").textContent = "Failed to update contract. Please try again.";
+            document.getElementById("update-error").classList.remove("d-none");
+        }
+    }
+
+    // ── Cancel contract ────────────────────────────────────
+    function openCancelModal() {
+        if (!contractData) return;
+        document.getElementById("cancel-contract-number").textContent = contractData.contractNumber;
+        new bootstrap.Modal(document.getElementById("cancelModal")).show();
+    }
+
+    async function submitCancel() {
+        try {
+            const res = await fetch(`/api/contracts/${contractId}`, { method: "DELETE" });
+            if (!res.ok) throw new Error();
+            window.location.href = "/garages/manage";
+        } catch {
+            bootstrap.Modal.getInstance(document.getElementById("cancelModal")).hide();
+            showToast("Failed to cancel contract. Please try again.", "danger");
+        }
+    }
+
+    // ── Edit reservation ───────────────────────────────────
+    function openEditReservationModal(r) {
+        pendingEditReservation = r;
+        document.getElementById("edit-res-space").textContent = r.spaceCode;
+        document.getElementById("edit-datefrom").value = r.datefrom ?? "";
+        document.getElementById("edit-dateto").value = r.dateto ?? "";
+
+        const timeSection = document.getElementById("edit-time-section");
+        if (r.timefrom || r.timeto) {
+            timeSection.classList.remove("d-none");
+            document.getElementById("edit-timefrom").value = r.timefrom ?? "";
+            document.getElementById("edit-timeto").value = r.timeto ?? "";
+        } else {
+            timeSection.classList.add("d-none");
+        }
+
+        document.getElementById("edit-res-error").classList.add("d-none");
+        new bootstrap.Modal(document.getElementById("editReservationModal")).show();
+    }
+
+    async function submitEditReservation() {
+        if (!pendingEditReservation) return;
+        const hasTime = !document.getElementById("edit-time-section").classList.contains("d-none");
+        const body = {
+            datefrom: document.getElementById("edit-datefrom").value,
+            dateto: document.getElementById("edit-dateto").value,
+            timefrom: hasTime ? (document.getElementById("edit-timefrom").value || null) : null,
+            timeto: hasTime ? (document.getElementById("edit-timeto").value || null) : null,
+        };
+
+        try {
+            const res = await fetch(`/api/reservations/${pendingEditReservation.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) throw new Error();
+            bootstrap.Modal.getInstance(document.getElementById("editReservationModal")).hide();
+            showToast("Reservation updated.", "success");
+            await loadContract();
+        } catch {
+            document.getElementById("edit-res-error").textContent = "Failed to update reservation. Please try again.";
+            document.getElementById("edit-res-error").classList.remove("d-none");
+        }
+        pendingEditReservation = null;
+    }
+
+    // ── Cancel reservation ─────────────────────────────────
+    function openCancelReservationModal(reservationId, spaceCode) {
+        pendingCancelReservationId = reservationId;
+        document.getElementById("cancel-res-space").textContent = spaceCode;
+        new bootstrap.Modal(document.getElementById("cancelReservationModal")).show();
+    }
+
+    async function submitCancelReservation() {
+        if (!pendingCancelReservationId) return;
+        try {
+            const res = await fetch(`/api/reservations/${pendingCancelReservationId}`, { method: "DELETE" });
+            if (!res.ok) throw new Error();
+            bootstrap.Modal.getInstance(document.getElementById("cancelReservationModal")).hide();
+            showToast("Reservation cancelled.", "success");
+            await loadContract();
+        } catch {
+            bootstrap.Modal.getInstance(document.getElementById("cancelReservationModal")).hide();
+            showToast("Failed to cancel reservation. Please try again.", "danger");
+        }
+        pendingCancelReservationId = null;
+    }
+
+    // ── Helpers ────────────────────────────────────────────
+    function reservationStatus(r) {
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+        const isMultiDay = r.datefrom !== r.dateto;
+
+        if (isMultiDay) {
+            if (r.dateto < today) return { label: "Ended", cls: "bg-secondary" };
+            if (r.datefrom > today) return { label: "Upcoming", cls: "bg-info text-dark" };
+            return { label: "Active", cls: "bg-success" };
+        } else {
+            if (r.datefrom < today) return { label: "Ended", cls: "bg-secondary" };
+            if (r.datefrom > today) return { label: "Upcoming", cls: "bg-info text-dark" };
+            if (r.timefrom && r.timeto) {
+                const [fh, fm] = r.timefrom.split(":").map(Number);
+                const [th, tm] = r.timeto.split(":").map(Number);
+                const from = new Date(); from.setHours(fh, fm, 0);
+                const to = new Date(); to.setHours(th, tm, 0);
+                if (now < from) return { label: "Upcoming", cls: "bg-info text-dark" };
+                if (now > to) return { label: "Ended", cls: "bg-secondary" };
+                return { label: "Active", cls: "bg-success" };
+            }
+        }
+        return { label: "Unknown", cls: "bg-secondary" };
+    }
+
+    function formatDate(dateStr) {
+        return new Date(dateStr + "T00:00:00").toLocaleDateString("en-GB", {
+            day: "numeric", month: "short", year: "numeric"
+        });
+    }
+
+    function formatDateTime(dtStr) {
+        if (!dtStr) return "—";
+        return new Date(dtStr).toLocaleString("en-GB", {
+            day: "numeric", month: "short", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+        });
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById("toast");
+        const body = document.getElementById("toast-body");
+        toast.className = `toast align-items-center border-0 text-white bg-${type}`;
+        body.textContent = message;
+        new bootstrap.Toast(toast, { delay: 3000 }).show();
+    }
+</script>

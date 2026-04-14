@@ -21,10 +21,10 @@ public class Garage extends BaseModel {
   @JoinColumn(name = "addressid")
   public Address address;
 
-  @OneToMany(mappedBy = "garage")
+  @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL)
   public Set<Scanner> scanners = new HashSet<>();
 
-  @OneToMany(mappedBy = "garage")
+  @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL)
   public Set<ParkingSpace> parkingspaces = new HashSet<>();
 
   public String getFormattedAddress() {

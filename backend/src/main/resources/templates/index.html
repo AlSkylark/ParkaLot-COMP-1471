@@ -1,16 +1,92 @@
 <div th:replace="~{ layout :: layout(~{::content}) }">
-    <div th:fragment="content" class="container p-3">
-        <h2>Management</h2>
-        <div th:each="item : ${internal_admin_items}">
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${item.value.label}"></h5>
-                    <a
-                        th:href="@{'edit/' + ${item.key}}"
-                        class="btn btn-primary"
-                        th:text="'View ' + ${item.value.label}"
-                        >View</a
-                    >
+    <div th:fragment="content" class="container p-4">
+        <h2 class="mb-4">Admin Dashboard</h2>
+
+        <!-- Garage Management -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card border-primary">
+                    <div class="card-body p-4">
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <div>
+                                <h4 class="card-title mb-1">
+                                    🅿️ Garage Management
+                                </h4>
+                                <p class="text-muted mb-0">
+                                    View parking spaces, monitor real-time
+                                    occupancy and manage reservations across all
+                                    garages.
+                                </p>
+                            </div>
+                            <a
+                                href="/garages/manage"
+                                class="btn btn-primary btn-lg ms-4"
+                            >
+                                Open →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservations Management -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card border-success">
+                    <div class="card-body p-4">
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <div>
+                                <h4 class="card-title mb-1">
+                                    &#128203; Contracts &amp; Reservations
+                                </h4>
+                                <p class="text-muted mb-0">
+                                    Browse all reservations across every garage,
+                                    filtered by date. View and manage individual
+                                    contracts.
+                                </p>
+                            </div>
+                            <a
+                                href="/reservations"
+                                class="btn btn-success btn-lg ms-4"
+                            >
+                                Open &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="mb-4" />
+
+        <!-- Entity Management -->
+        <h5 class="mb-3 text-muted">Entity Management</h5>
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+            <div class="col" th:each="item : ${internal_admin_items}">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5
+                            class="card-title"
+                            th:text="${item.value.label}"
+                        ></h5>
+                        <p
+                            class="text-muted small mb-3"
+                            th:text="'Manage all ' + ${item.value.label} + ' records.'"
+                        ></p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <a
+                            th:href="@{'edit/' + ${item.key}}"
+                            class="btn btn-primary"
+                            th:text="'View ' + ${item.value.label}"
+                            >View</a
+                        >
+                    </div>
                 </div>
             </div>
         </div>

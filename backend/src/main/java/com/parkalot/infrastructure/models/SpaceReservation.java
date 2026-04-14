@@ -26,7 +26,7 @@ public class SpaceReservation extends BaseModel {
   @Column(name = "timeto")
   private LocalTime timeto;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "carid", nullable = true)
   public Car car;
 

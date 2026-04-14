@@ -22,7 +22,7 @@
                             <label class="form-label">Parking Space</label>
                             <select
                                 class="form-select"
-                                name="parkingSpace.id"
+                                name="parkingspace.id"
                                 id="new_parking_space_dropdown"
                             >
                                 <option value="">
@@ -54,7 +54,7 @@
                             <label class="form-label">Parking Space</label>
                             <select
                                 class="form-select"
-                                name="parkingSpace.id"
+                                name="parkingspace.id"
                                 th:attr="id=|parking_space_dropdown${item.id}|"
                                 th:data-current-parking-space="${item.parkingspace != null ? item.parkingspace.id : ''}"
                             >
