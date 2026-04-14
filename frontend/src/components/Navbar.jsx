@@ -4,49 +4,77 @@ import { Dropdown, Button, ButtonGroup } from "react-bootstrap";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const { isLoggedIn, logout } = useAuth();
-  const navigate = useNavigate();
+    const { isLoggedIn, logout } = useAuth();
+    const navigate = useNavigate();
 
-  async function handleSignout() {
-    signout();
-    logout(); //context update
-    navigate("/");
-  }
+    function handleSignout() {
+        signout();
+        logout();
+        navigate("/");
+    }
 
-  return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <span
-        className="navbar-brand fw-bold"
-        style={{ cursor: "pointer" }}
-        onClick={() => navigate("/")}
-      >
-        ParkaLot
-      </span>
+    return (
+        <nav className="navbar navbar-expand-lg navbar-dark bg-success px-4 shadow-sm">
+            {/* LOGO */}
+            <span
+                className="navbar-brand fw-bold"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/")}
+            >
+                ParkaLot
+            </span>
 
-      <div className="ms-auto">
-        {isLoggedIn ? (
-          <Dropdown as={ButtonGroup}>
-            <Button variant="primary" onClick={() => navigate("/profile")}>
-              My profile
-            </Button>
-            <Dropdown.Toggle split variant="primary"></Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item as="button" onClick={() => handleSignout()}>
-                Sign out
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        ) : (
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-        )}
-      </div>
-    </nav>
-  );
+            {/* MENU */}
+            <div className="ms-auto d-flex align-items-center gap-3">
+                <button
+                    className="btn btn-link text-white"
+                    onClick={() => navigate("/")}
+                >
+                    Home
+                </button>
+
+                <button
+                    className="btn btn-link text-white"
+                    onClick={() => navigate("/about")}
+                >
+                    About
+                </button>
+
+                <button
+                    className="btn btn-link text-white"
+                    onClick={() => navigate("/services")}
+                >
+                    Services
+                </button>
+
+                {isLoggedIn ? (
+                    <Dropdown as={ButtonGroup}>
+                        <Button
+                            variant="primary"
+                            onClick={() => navigate("/profile")}
+                        >
+                            My Profile
+                        </Button>
+
+                        <Dropdown.Toggle split variant="primary" />
+
+                        <Dropdown.Menu>
+                            <Dropdown.Item onClick={handleSignout}>
+                                Sign out
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                ) : (
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate("/login")}
+                    >
+                        Login
+                    </button>
+                )}
+            </div>
+        </nav>
+    );
 }
 
 export default Navbar;

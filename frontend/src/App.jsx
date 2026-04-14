@@ -9,7 +9,10 @@ import Profile from "./pages/Profile";
 import Garage from "./pages/Garage";
 import NotFound from "./pages/404";
 import Reserve from "./pages/Reserve";
-
+import Success from "./pages/success";
+import QuotePage from "./pages/QuotePage";
+import About from "./pages/about";
+import Services from "./pages/services";
 
 function App() {
     const { isLoggedIn } = useAuth();
@@ -55,6 +58,19 @@ function App() {
                 />
 
                 <Route path="/404" element={withLayout(<NotFound />)} />
+
+                <Route path="/success" element={withLayout(<Success />)} />
+
+                <Route
+                    path="/reservation/:id"
+                    element={withLayout(<Reserve />)}
+                />
+
+                <Route path="/quote" element={withLayout(<QuotePage />)} />
+
+                <Route path="/about" element={withLayout(<About />)} />
+
+                <Route path="/services" element={withLayout(<Services />)} />
             </Routes>
         </HashRouter>
     );

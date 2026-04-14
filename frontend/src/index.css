@@ -1,27 +1,124 @@
+body {
+    background-color: #f5f7fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.card {
+    border-radius: 14px;
+    border: none;
+}
+
+.btn {
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+h1, h2, h3 {
+    letter-spacing: 0.5px;
+}
+
+
 .Card{
     border: 1px solid hsl(0, 0%, 93%);
-    border-radius: 10px;
+    border-radius: 14px;
     box-shadow: 5px 5px 5px hsla(0, 0%, 0%, 0.1);
     padding: 20px;
     margin: 10px;
     text-align: center;
     max-width: 250px;
     display: inline-block;
+    transition: 0.3s;
 }
+
 .Card .Card-img{
     max-width: 60%;
     height: auto;
     border-radius: 10px;
     margin-bottom: 10px;
-
 }
 .Card .Card-title{
     font-family: Arial, Helvetica, sans-serif;
     margin: 0;
     color: black;
 }
+
 .Card .Card-txt{
     font-family: Arial, Helvetica, sans-serif;
     margin: 0;
     color: black;
+}
+
+.garage-card:hover {
+    transform: translateY(-5px);
+}
+
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link {
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: #0d6efd !important;
+}
+
+section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.garage-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.garage-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+    height: 180px;
+    object-fit: cover;
+}
+
+.btn {
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+iframe {
+    border-radius: 12px;
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+input.form-control {
+    border-radius: 10px;
+    padding: 10px;
+}
+
+img {
+    border-radius: 12px;
 }
