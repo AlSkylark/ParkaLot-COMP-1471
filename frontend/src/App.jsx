@@ -25,6 +25,8 @@ function App() {
         <HashRouter>
             <Routes>
                 <Route path="/" element={withLayout(<Home />)} />
+                <Route path="/garages" element={<Navigate to="/" />} />
+
                 <Route
                     path="/create-account"
                     element={withLayout(<CreateAccount />)}

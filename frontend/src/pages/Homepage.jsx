@@ -1,16 +1,40 @@
-import GarageList from "../components/GarageList";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import GarageList from "../components/GarageList";
 
 function Home() {
-    const [search, setSearch] = useState("");
-
     const navigate = useNavigate();
+    const [search, setSearch] = useState("");
 
     return (
         <>
+            {/* Hero */}
+            <div className="bg-white border-bottom py-5">
+                <div className="container text-center py-3">
+                    <p
+                        className="text-uppercase text-primary fw-semibold mb-2"
+                        style={{ fontSize: "0.75rem", letterSpacing: "0.12em" }}
+                    >
+                        City-wide parking, simplified
+                    </p>
+                    <h1
+                        className="fw-bold text-dark mb-3"
+                        style={{ fontSize: "3.5rem", letterSpacing: "-0.02em" }}
+                    >
+                        Parka<span className="text-primary">Lot</span>
+                    </h1>
+                    <p
+                        className="text-muted mx-auto mb-4"
+                        style={{ maxWidth: "420px" }}
+                    >
+                        Find and reserve your perfect parking spot across our
+                        network of secure, city-centre garages.
+                    </p>
+                </div>
+            </div>
+
             {/* FEATURE SECTION */}
-            <section className="container text-center mt-5">
+            <section className="container text-center mt-2">
                 <h2 className="fw-bold mb-4">Why Choose ParkaLot?</h2>
 
                 <div className="row">
@@ -71,18 +95,6 @@ function Home() {
                         </div>
                     </div>
                 </div>
-            </section>
-
-            {/* CALL TO ACTION */}
-            <section className="text-center py-5">
-                <h3 className="mb-3">Start Parking Smarter Today</h3>
-
-                <button
-                    className="btn btn-primary btn-lg"
-                    onClick={() => navigate("/garage")}
-                >
-                    Find Parking Now
-                </button>
             </section>
         </>
     );
