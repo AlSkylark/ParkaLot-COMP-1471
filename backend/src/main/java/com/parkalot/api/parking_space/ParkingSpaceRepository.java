@@ -18,7 +18,17 @@ public interface ParkingSpaceRepository extends BaseRepository<ParkingSpace> {
     """
         SELECT new com.parkalot.api.parking_space.Dtos.ParkingAvailabilityDto(
             COUNT(ps),
-            COALESCE(SUM(CASE WHEN sd.status = 0 THEN 1 ELSE 0 END), 0)
+            COALESCE(SUM(CASE
+                WHEN sd.status = 0
+                AND ps.id NOT IN (
+                    SELECT sr.space.id FROM SpaceReservation sr
+                    WHERE sr.datefrom <= CURRENT_DATE AND sr.dateto >= CURRENT_DATE
+                    AND (
+                        sr.timefrom IS NULL OR sr.timeto IS NULL
+                        OR (sr.timefrom <= CURRENT_TIME AND sr.timeto >= CURRENT_TIME)
+                    )
+                )
+                THEN 1 ELSE 0 END), 0)
         )
         FROM ParkingSpace ps
         LEFT JOIN ps.sensor sd
@@ -33,7 +43,17 @@ public interface ParkingSpaceRepository extends BaseRepository<ParkingSpace> {
     """
         SELECT new com.parkalot.api.parking_space.Dtos.ParkingAvailabilityDto(
             COUNT(ps),
-            COALESCE(SUM(CASE WHEN sd.status = 0 THEN 1 ELSE 0 END), 0)
+            COALESCE(SUM(CASE
+                WHEN sd.status = 0
+                AND ps.id NOT IN (
+                    SELECT sr.space.id FROM SpaceReservation sr
+                    WHERE sr.datefrom <= CURRENT_DATE AND sr.dateto >= CURRENT_DATE
+                    AND (
+                        sr.timefrom IS NULL OR sr.timeto IS NULL
+                        OR (sr.timefrom <= CURRENT_TIME AND sr.timeto >= CURRENT_TIME)
+                    )
+                )
+                THEN 1 ELSE 0 END), 0)
         )
         FROM ParkingSpace ps
         LEFT JOIN ps.sensor sd

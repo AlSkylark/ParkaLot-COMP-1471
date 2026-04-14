@@ -1,5 +1,15 @@
 import { get, post } from "./networkService";
 
+export async function getAllGarages() {
+    try {
+        const res = await get("garages");
+        return res;
+    } catch (error) {
+        console.error("Could not fetch garages");
+        return [];
+    }
+}
+
 export async function getGarage(id) {
     try {
         const res = await get(`garages/${id}`);
