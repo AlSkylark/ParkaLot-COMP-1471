@@ -58,7 +58,7 @@ public class SpaceReservationsService {
     if (
       hasCustomer && request.carPlate() != null && !request.carPlate().isBlank()
     ) {
-      var car = carService.getOrCreateCar(request.carPlate());
+      var car = carService.getCar(request.carPlate());
       spaceReservation.setCar(car);
     }
 

@@ -59,6 +59,8 @@
                     </div>
                 </div>
 
+                <hr class="my-3" />
+
                 <!-- Scanners -->
                 <div
                     class="d-flex justify-content-between align-items-center mb-2"
@@ -78,12 +80,17 @@
                             <!-- Add scanner form -->
                             <div
                                 th:id="|add-scanner-form-${item.id}|"
-                                class="card mb-2 d-none"
+                                class="card mb-4 d-none shadow-sm border-1"
                             >
                                 <div class="card-body">
-                                    <div class="row g-2 align-items-end">
-                                        <div class="col-sm">
-                                            <label class="form-label small mb-1"
+                                    <div
+                                        class="d-flex flex-wrap align-items-center gap-3"
+                                    >
+                                        <div
+                                            class="d-flex align-items-center gap-2"
+                                        >
+                                            <label
+                                                class="form-label small mb-0 text-nowrap fw-semibold"
                                                 >Type</label
                                             >
                                             <select
@@ -95,7 +102,7 @@
                                                 <option value="2">Both</option>
                                             </select>
                                         </div>
-                                        <div class="col-auto">
+                                        <div class="d-flex gap-2 ms-auto">
                                             <button
                                                 type="button"
                                                 class="btn btn-sm btn-primary"
@@ -151,12 +158,17 @@
                             <!-- Add space form -->
                             <div
                                 th:id="|add-space-form-${item.id}|"
-                                class="card mb-2 d-none"
+                                class="card mb-4 d-none shadow-sm border-1"
                             >
                                 <div class="card-body">
-                                    <div class="row g-2 align-items-end">
-                                        <div class="col-sm">
-                                            <label class="form-label small mb-1"
+                                    <div
+                                        class="d-flex flex-wrap align-items-center gap-3"
+                                    >
+                                        <div
+                                            class="d-flex align-items-center gap-2"
+                                        >
+                                            <label
+                                                class="form-label small mb-0 text-nowrap fw-semibold"
                                                 >Code</label
                                             >
                                             <input
@@ -166,8 +178,11 @@
                                                 placeholder="e.g. A001"
                                             />
                                         </div>
-                                        <div class="col-sm">
-                                            <label class="form-label small mb-1"
+                                        <div
+                                            class="d-flex align-items-center gap-2"
+                                        >
+                                            <label
+                                                class="form-label small mb-0 text-nowrap fw-semibold"
                                                 >Floor</label
                                             >
                                             <input
@@ -177,8 +192,11 @@
                                                 placeholder="e.g. Ground"
                                             />
                                         </div>
-                                        <div class="col-sm">
-                                            <label class="form-label small mb-1"
+                                        <div
+                                            class="d-flex align-items-center gap-2"
+                                        >
+                                            <label
+                                                class="form-label small mb-0 text-nowrap fw-semibold"
                                                 >Type</label
                                             >
                                             <select
@@ -193,7 +211,7 @@
                                                 </option>
                                             </select>
                                         </div>
-                                        <div class="col-auto">
+                                        <div class="d-flex gap-2 ms-auto">
                                             <button
                                                 type="button"
                                                 class="btn btn-sm btn-primary"
