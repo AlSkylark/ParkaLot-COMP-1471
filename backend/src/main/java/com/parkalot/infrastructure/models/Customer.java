@@ -46,4 +46,8 @@ public class Customer extends BaseModel {
 
     return this.address.toString();
   }
+
+  public String getFullName() {
+    return this.firstname + " " + this.lastname;
+  }
 }

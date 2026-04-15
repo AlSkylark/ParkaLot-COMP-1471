@@ -9,6 +9,7 @@ public record QuoteDto(
   String quoteNumber,
   String spaceCode,
   String spaceFloor,
+  int spaceType,
   BigDecimal price,
   LocalDate dateFrom,
   LocalDate dateTo,

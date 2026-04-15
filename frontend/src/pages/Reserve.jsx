@@ -5,6 +5,7 @@ import { Spinner, Card, Row, Col } from "react-bootstrap";
 import EnumDropdown from "../components/EnumDropdown";
 import { getProfile } from "../services/customerService";
 import { useAuth } from "../context/AuthContext";
+import QuotePage from "./QuotePage";
 
 function Reserve() {
     const { isLoggedIn } = useAuth();
@@ -81,7 +82,7 @@ function Reserve() {
         setSubmitting(true);
         try {
             const res = await reserve(id, form);
-            alert(res);
+            navigate(`/quote/${res.quoteNumber}`, { state: { quote: res } });
         } finally {
             setSubmitting(false);
         }
@@ -222,7 +223,7 @@ function Reserve() {
                                                         key={car.id}
                                                         value={car.id}
                                                     >
-                                                        {car.plate}
+                                                        {car.plateNo}
                                                     </option>
                                                 ))}
                                             </select>

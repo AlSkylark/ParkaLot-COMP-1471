@@ -1,5 +1,6 @@
 package com.parkalot.api.contracts.dtos;
 
+import com.parkalot.api.space_reservation.dtos.SpaceReservationDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,5 +13,5 @@ public record ContractDetailDto(
   boolean isRecurrent,
   String customerName,
   GuestData guestData,
-  List<SpaceReservationDetailDto> reservations
+  List<SpaceReservationDto> reservations
 ) {}

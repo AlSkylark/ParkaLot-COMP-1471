@@ -31,11 +31,23 @@
 
                 <!-- Week Strip -->
                 <div class="p-3 border-bottom d-flex align-items-center gap-2">
-                    <button class="btn btn-sm btn-outline-secondary px-2" onclick="shiftWeek(-7)" title="Previous week">&#8249;</button>
+                    <button
+                        class="btn btn-sm btn-outline-secondary px-2"
+                        onclick="shiftWeek(-7)"
+                        title="Previous week"
+                    >
+                        &#8249;
+                    </button>
                     <div class="d-flex gap-2 flex-grow-1" id="week-strip">
                         <!-- Populated dynamically -->
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary px-2" onclick="shiftWeek(7)" title="Next week">&#8250;</button>
+                    <button
+                        class="btn btn-sm btn-outline-secondary px-2"
+                        onclick="shiftWeek(7)"
+                        title="Next week"
+                    >
+                        &#8250;
+                    </button>
                 </div>
 
                 <!-- Legend + Filters -->
@@ -111,9 +123,13 @@
         </div>
 
         <!-- Sticky bottom action bar -->
-        <div class="border-top bg-white py-3 px-4"
-             style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030">
-            <a href="/" class="btn btn-outline-secondary">&#8592; Back to Dashboard</a>
+        <div
+            class="border-top bg-white py-3 px-4"
+            style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030"
+        >
+            <a href="/" class="btn btn-outline-secondary"
+                >&#8592; Back to Dashboard</a
+            >
         </div>
     </div>
 </div>
@@ -266,7 +282,8 @@
 
         if (isPast) {
             const banner = document.createElement("div");
-            banner.className = "alert alert-secondary py-1 px-3 mb-3 d-flex align-items-center gap-2";
+            banner.className =
+                "alert alert-secondary py-1 px-3 mb-3 d-flex align-items-center gap-2";
             banner.style.fontSize = "0.8rem";
             banner.innerHTML = `<span>&#128337;</span> Viewing historical snapshot for ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short", year: "numeric" })}`;
             map.appendChild(banner);
@@ -392,7 +409,10 @@
     async function selectDate(date, btn) {
         selectedDate = date;
         document.querySelectorAll("#week-strip button").forEach((b) => {
-            b.className = b.className.replace("btn-primary", "btn-outline-secondary");
+            b.className = b.className.replace(
+                "btn-primary",
+                "btn-outline-secondary",
+            );
             b.style.minWidth = "64px";
         });
         btn.className = `btn btn-sm btn-primary`;
@@ -433,7 +453,7 @@
         list.innerHTML = "";
         reservations.forEach((r) => {
             const item = document.createElement("a");
-            item.href = `/reservations/${r.id}`;
+            item.href = `/reservations/${r.contractid}`;
             item.className = "text-decoration-none";
             item.innerHTML = `<div class="p-3 border-bottom reservation-item">${buildReservationItemHtml(r)}</div>`;
             list.appendChild(item);

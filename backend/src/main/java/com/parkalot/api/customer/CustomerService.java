@@ -22,6 +22,11 @@ public class CustomerService {
     var user = repo.findByEmail(email);
 
     var customer = user.orElseThrow();
+    var cars = customer
+      .getCars()
+      .stream()
+      .map(c -> new CarDto(c.getId(), c.getPlateno(), c.getCartype()))
+      .toList();
 
     var dto = new CustomerDto(
       customer.email,
@@ -30,7 +35,8 @@ public class CustomerService {
       customer.iscorporate,
       Optional.ofNullable(customer.address)
         .map(a -> a.toString())
-        .orElse("")
+        .orElse(""),
+      cars
     );
 
     return dto;

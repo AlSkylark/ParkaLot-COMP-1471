@@ -1,7 +1,9 @@
 package com.parkalot.api.contracts;
 
 import com.parkalot.api.contracts.dtos.ContractDetailDto;
-import com.parkalot.api.contracts.dtos.GuestData;
+import com.parkalot.api.contracts.dtos.ContractDto;
+import com.parkalot.api.contracts.dtos.ContractUpdateRequest;
+import com.parkalot.api.contracts.dtos.QuoteDto;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,5 +47,27 @@ public class ContractController {
     return ResponseEntity.ok(Map.of("success", true));
   }
 
-  public record ContractUpdateRequest(boolean isRecurrent, GuestData guestData) {}
+  @GetMapping("/quote/{quoteNo}")
+  public ResponseEntity<QuoteDto> getQuote(@PathVariable String quoteNo) {
+    var result = service.getQuote(quoteNo);
+
+    return result
+      .map(q -> ResponseEntity.ok(q))
+      .orElse(ResponseEntity.notFound().build());
+  }
+
+  @GetMapping("quote/{quoteNo}/accept")
+  public ResponseEntity<ContractDto> acceptQuote(@PathVariable String quoteNo) {
+    var result = service.createContract(quoteNo);
+
+    return result
+      .map(c -> ResponseEntity.ok(c))
+      .orElse(ResponseEntity.notFound().build());
+  }
+
+  @DeleteMapping("/quote/{quoteNo}")
+  public ResponseEntity<?> cancelQuote(@PathVariable String quoteNo) {
+    service.cancelContract(quoteNo);
+    return ResponseEntity.ok(Map.of("success", true));
+  }
 }

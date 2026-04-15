@@ -7,7 +7,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,10 +20,10 @@ import lombok.NoArgsConstructor;
 public class Invoice extends BaseModel {
 
   @Column(name = "datecreated", nullable = false)
-  LocalDate datecreated;
+  LocalDateTime datecreated;
 
   @Column(name = "datepaid")
-  LocalDate datepaid;
+  LocalDateTime datepaid;
 
   @Column(name = "invoicenumber", nullable = false, unique = true)
   String invoicenumber;
