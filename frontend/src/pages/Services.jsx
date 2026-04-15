@@ -1,7 +1,6 @@
 function Services() {
     return (
         <div className="container mt-5">
-
             {/* HEADER */}
             <div className="text-center mb-5">
                 <h1 className="fw-bold">Our Services</h1>
@@ -12,12 +11,12 @@ function Services() {
 
             {/* SERVICES CARDS */}
             <div className="row g-4">
-
                 <div className="col-md-4">
                     <div className="card h-100 shadow-sm p-3 text-center">
                         <h4>🔍 Search Parking</h4>
                         <p className="text-muted">
-                            Easily find available parking spaces near your location.
+                            Easily find available parking spaces near your
+                            location.
                         </p>
                     </div>
                 </div>
@@ -66,9 +65,7 @@ function Services() {
                         </p>
                     </div>
                 </div>
-
             </div>
-
         </div>
     );
 }

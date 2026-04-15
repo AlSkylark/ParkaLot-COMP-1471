@@ -4,7 +4,6 @@ import com.parkalot.api.car.dtos.CarCreateRequest;
 import com.parkalot.api.car.dtos.CarDto;
 import com.parkalot.infrastructure.security.CustomerAuthService;
 import com.parkalot.infrastructure.security.JwtUtil;
-import io.micrometer.core.ipc.http.HttpSender.Response;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 record SignInRequest(String email) {}

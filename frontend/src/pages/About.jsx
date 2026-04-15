@@ -1,7 +1,6 @@
-function About() {
+export default function About() {
     return (
         <div className="container mt-5">
-
             {/* HEADER */}
             <div className="text-center mb-5">
                 <h1 className="fw-bold">About ParkaLot</h1>
@@ -12,13 +11,13 @@ function About() {
 
             {/* CONTENT */}
             <div className="row align-items-center">
-
                 <div className="col-md-6">
                     <h4 className="fw-bold mb-3">Our Mission</h4>
                     <p className="text-secondary">
-                        ParkaLot is designed to simplify the way people find and reserve
-                        parking spaces. We aim to reduce time wasted searching for parking
-                        and provide a seamless digital experience.
+                        ParkaLot is designed to simplify the way people find and
+                        reserve parking spaces. We aim to reduce time wasted
+                        searching for parking and provide a seamless digital
+                        experience.
                     </p>
 
                     <h4 className="fw-bold mt-4 mb-3">What We Offer</h4>
@@ -37,11 +36,7 @@ function About() {
                         className="img-fluid rounded shadow"
                     />
                 </div>
-
             </div>
-
         </div>
     );
 }
-
-export default About;

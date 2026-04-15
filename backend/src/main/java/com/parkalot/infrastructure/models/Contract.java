@@ -52,4 +52,20 @@ public class Contract extends BaseModel {
 
   @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
   public Set<Invoice> invoices = new HashSet<>();
+
+  public String getCustomerFullName() {
+    String name;
+    if (this.getCustomer() != null) {
+      name =
+        this.getCustomer().getFirstname() +
+        " " +
+        this.getCustomer().getLastname();
+    } else if (this.getGuestData() != null) {
+      name = this.getGuestData().fullName();
+    } else {
+      name = "Unknown";
+    }
+
+    return name;
+  }
 }

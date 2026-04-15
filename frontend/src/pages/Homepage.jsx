@@ -12,19 +12,23 @@ function Home() {
             <div className="bg-white border-bottom py-5">
                 <div className="container text-center py-3">
                     <p
-                        className="text-uppercase text-primary fw-semibold mb-2"
-                        style={{ fontSize: "0.75rem", letterSpacing: "0.12em" }}
+                        className="text-uppercase fw-semibold mb-3"
+                        style={{
+                            fontSize: "0.75rem",
+                            letterSpacing: "0.12em",
+                            color: "#0f2d1f",
+                        }}
                     >
                         City-wide parking, simplified
                     </p>
                     <h1
-                        className="fw-bold text-dark mb-3"
+                        className="fw-bold text-dark mb-4"
                         style={{ fontSize: "3.5rem", letterSpacing: "-0.02em" }}
                     >
-                        Parka<span className="text-primary">Lot</span>
+                        Parka<span style={{ color: "#22c55e" }}>Lot</span>
                     </h1>
                     <p
-                        className="text-muted mx-auto mb-4"
+                        className="text-muted mx-auto mb-0"
                         style={{ maxWidth: "420px" }}
                     >
                         Find and reserve your perfect parking spot across our
@@ -33,65 +37,73 @@ function Home() {
                 </div>
             </div>
 
-            {/* FEATURE SECTION */}
-            <section className="container text-center mt-2">
-                <h2 className="fw-bold mb-4">Why Choose ParkaLot?</h2>
-
-                <div className="row">
+            {/* Feature section */}
+            <section className="container text-center my-6 py-5">
+                <h2 className="fw-bold mb-5">Why Choose ParkaLot?</h2>
+                <div className="row g-4">
                     <div className="col-md-4">
                         <h5>🔍 Easy Search</h5>
-                        <p>Find available parking spaces instantly near you.</p>
+                        <p className="text-muted">
+                            Find available parking spaces instantly near you.
+                        </p>
                     </div>
-
                     <div className="col-md-4">
                         <h5>⚡ Fast Booking</h5>
-                        <p>Reserve your parking space in seconds.</p>
+                        <p className="text-muted">
+                            Reserve your parking space in seconds.
+                        </p>
                     </div>
-
                     <div className="col-md-4">
                         <h5>🔒 Secure</h5>
-                        <p>Your bookings and data are safe and protected.</p>
+                        <p className="text-muted">
+                            Your bookings and data are safe and protected.
+                        </p>
                     </div>
                 </div>
             </section>
 
-            {/* SEARCH SECTION */}
-            <section className="container text-center mt-2">
-                <h2 className="text-center fw-bold mb-4">Find Parking</h2>
+            <hr className="container" />
 
+            {/* Search section */}
+            <section className="container text-center py-5">
+                <h2 className="fw-bold mb-4">Find Parking</h2>
                 <input
-                    className="container-lg form-control"
+                    className="form-control form-control-lg mx-auto"
                     placeholder="Search location..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    style={{ maxWidth: "560px" }}
                 />
             </section>
 
-            {/* GARAGE LIST (YOUR EXISTING COMPONENT) */}
-            <section className="container">
+            {/* Garage list */}
+            <section className="container pb-5">
                 <h2 className="fw-bold mb-4 text-center">Available Garages</h2>
                 <GarageList search={search} />
             </section>
 
-            {/* HOW IT WORKS */}
-            <section className="bg-light py-5 mt-5">
-                <div className="container text-center">
-                    <h2 className="fw-bold mb-4">How It Works</h2>
-
-                    <div className="row">
+            {/* How it works */}
+            <section className="bg-light py-5 mt-2 mb-0">
+                <div className="container text-center py-3">
+                    <h2 className="fw-bold mb-5">How It Works</h2>
+                    <div className="row g-4">
                         <div className="col-md-4">
                             <h5>1. Search</h5>
-                            <p>Browse available garages.</p>
+                            <p className="text-muted">
+                                Browse available garages.
+                            </p>
                         </div>
-
                         <div className="col-md-4">
                             <h5>2. Select</h5>
-                            <p>Choose the best parking option.</p>
+                            <p className="text-muted">
+                                Choose your favorite garage.
+                            </p>
                         </div>
-
                         <div className="col-md-4">
                             <h5>3. Reserve</h5>
-                            <p>Book instantly and secure your spot.</p>
+                            <p className="text-muted">
+                                Book instantly and secure your spot.
+                            </p>
                         </div>
                     </div>
                 </div>

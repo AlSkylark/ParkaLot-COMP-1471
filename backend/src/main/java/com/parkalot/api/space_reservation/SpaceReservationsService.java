@@ -20,14 +20,17 @@ public class SpaceReservationsService {
   private final PriceBuilder priceBuilder;
   private final ParkingSpaceRepository parkingSpaceRepo;
   private final CarService carService;
+  private final SpaceReservationsMapper mapper;
 
   public SpaceReservationsService(
     SpaceReservationsRepository repo,
+    SpaceReservationsMapper mapper,
     ParkingSpaceRepository parkingSpaceRepo,
     PriceBuilder priceBuilder,
     CarService carService
   ) {
     this.repo = repo;
+    this.mapper = mapper;
     this.parkingSpaceRepo = parkingSpaceRepo;
     this.priceBuilder = priceBuilder;
     this.carService = carService;
@@ -76,33 +79,8 @@ public class SpaceReservationsService {
     var reservations = repo.findByGarageId(garageId, dateToSearch);
     var mapped = reservations
       .stream()
-      .map(r -> {
-        var contract = r.getContract();
-        String name;
-        if (contract.getCustomer() != null) {
-          name =
-            contract.getCustomer().getFirstname() +
-            " " +
-            contract.getCustomer().getLastname();
-        } else if (contract.getGuestData() != null) {
-          name = contract.getGuestData().fullName();
-        } else {
-          name = "Unknown";
-        }
-        return new SpaceReservationDto(
-          contract.getId(),
-          name,
-          r.getSpace().getCode(),
-          r.getSpace().getFloor(),
-          r.getDatefrom(),
-          r.getDateto(),
-          r.getTimefrom(),
-          r.getTimeto(),
-          r.getPricetype().getName(),
-          null
-        );
-      })
-      .collect(Collectors.toList());
+      .map(r -> mapper.mapToReservationDto(r))
+      .toList();
 
     return mapped;
   }
@@ -112,33 +90,7 @@ public class SpaceReservationsService {
     return repo
       .findByDate(dateToSearch)
       .stream()
-      .map(r -> {
-        var contract = r.getContract();
-        String name;
-        if (contract.getCustomer() != null) {
-          name =
-            contract.getCustomer().getFirstname() +
-            " " +
-            contract.getCustomer().getLastname();
-        } else if (contract.getGuestData() != null) {
-          name = contract.getGuestData().fullName();
-        } else {
-          name = "Unknown";
-        }
-        var garage = r.getSpace().getGarage();
-        return new SpaceReservationDto(
-          contract.getId(),
-          name,
-          r.getSpace().getCode(),
-          r.getSpace().getFloor(),
-          r.getDatefrom(),
-          r.getDateto(),
-          r.getTimefrom(),
-          r.getTimeto(),
-          r.getPricetype().getName(),
-          garage != null ? garage.getName() : null
-        );
-      })
+      .map(r -> mapper.mapToReservationDto(r))
       .toList();
   }
 

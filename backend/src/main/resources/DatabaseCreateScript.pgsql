@@ -42,11 +42,12 @@ CREATE TABLE Scanner (
 
 CREATE TABLE ParkingSpaces (
     Id SERIAL PRIMARY KEY,
-    Code VARCHAR(10) NOT NULL UNIQUE,
+    Code VARCHAR(10) NOT NULL,
     LocationFloor VARCHAR(2) NOT NULL,
     LocationId INT NOT NULL,
-    spacetype INT,
-    CONSTRAINT FK_SpaceLocation FOREIGN KEY (LocationId) REFERENCES Garages(Id)
+    SpaceType INT,
+    CONSTRAINT FK_SpaceLocation FOREIGN KEY (LocationId) REFERENCES Garages(Id),
+    CONSTRAINT UQ_SpaceCode_PerGarage UNIQUE (Code, LocationId)
 );
 
 CREATE TABLE SensorDevice (

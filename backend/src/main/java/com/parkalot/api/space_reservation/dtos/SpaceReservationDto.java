@@ -5,6 +5,7 @@ import java.time.LocalTime;
 
 public record SpaceReservationDto(
   int id,
+  int contractid,
   String customerName,
   String spaceCode,
   String spaceFloor,
@@ -12,6 +13,7 @@ public record SpaceReservationDto(
   LocalDate dateto,
   LocalTime timefrom,
   LocalTime timeto,
+  String carPlate,
   String priceTypeName,
   String garageName
 ) {}
