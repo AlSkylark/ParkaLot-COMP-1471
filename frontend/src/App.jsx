@@ -40,14 +40,8 @@ function App() {
                 />
                 <Route
                     path="/profile"
-                    element={withLayout(
-                        isLoggedIn ? (
-                            <Profile />
-                        ) : (
-                            <Navigate to="/login" replace />
-                        ),
-                    )}
-                ></Route>
+                    element={withLayout(<Profile />)}
+                />
 
                 <Route
                     path="/garages/:id"
