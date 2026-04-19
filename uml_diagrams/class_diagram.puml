@@ -1,0 +1,250 @@
+@startuml Make a Reservation - Backend Class Diagram
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+' ==================== ENUMS ====================
+package "enums" #LightYellow {
+  enum SpaceType {
+    NORMAL
+    ELECTRIC
+  }
+
+  enum GarageAvailability {
+    HIGH_AVAILABILITY
+    MEDIUM_AVAILABILITY
+    LOW_AVAILABILITY
+    FULL
+  }
+}
+
+' ==================== MODELS ====================
+package "models" #LightBlue {
+  abstract class BaseModel {
+    +int id
+  }
+
+  class Garage {
+    +String name
+    +Address address
+    +Set<ParkingSpace> parkingspaces
+    +getFormattedAddress() : String
+  }
+
+  class Address {
+    +String street
+    +String city
+    +String postcode
+  }
+
+  class ParkingSpace {
+    +String code
+    +Integer spacetype
+    +String floor
+  }
+
+  class Contract {
+    +String contractNumber
+    +LocalDateTime dateCreated
+    +LocalDateTime dateAgreed
+    +boolean isRecurrent
+    +boolean isQuote
+    +GuestData guestData
+    +getCustomerFullName() : String
+  }
+
+  class SpaceReservation {
+    +LocalDate datefrom
+    +LocalDate dateto
+    +LocalTime timefrom
+    +LocalTime timeto
+  }
+
+  class Customer {
+    +String email
+    +String firstname
+    +String lastname
+    +boolean iscorporate
+    +getFullName() : String
+  }
+
+  class Car {
+    +String plateno
+    +int cartype
+  }
+
+  class Invoice {
+    +String invoicenumber
+    +LocalDateTime datecreated
+    +BigDecimal total
+    +boolean isrefund
+  }
+
+  class PriceType {
+    +String name
+    +BigDecimal price
+  }
+
+  BaseModel <|-- Garage
+  BaseModel <|-- ParkingSpace
+  BaseModel <|-- Contract
+  BaseModel <|-- SpaceReservation
+  BaseModel <|-- Customer
+  BaseModel <|-- Car
+  BaseModel <|-- Invoice
+  BaseModel <|-- PriceType
+
+  Garage "1" *-down- "0..*" ParkingSpace : contains
+  Garage "1" -- "1" Address
+  Customer "1" -- "1" Address
+  Customer "1" *-- "0..*" Car : owns
+
+  Contract "0..*" --> "0..1" Customer : linked to
+  Contract "1" *-- "1..*" SpaceReservation : holds
+  Contract "1" *-- "0..*" Invoice : generates
+
+  SpaceReservation "0..*" --> "1" ParkingSpace : assigned to
+  SpaceReservation "0..*" --> "0..1" Car : for
+  SpaceReservation "0..*" --> "1" PriceType : priced by
+}
+
+' ==================== DTOs ====================
+package "dtos" #LightGreen {
+  class ReservationRequest <<record>> {
+    +String fullName
+    +String email
+    +String address
+    +SpaceType spaceTypeId
+    +String carPlate
+    +LocalDate startDate
+    +LocalDate endDate
+    +LocalTime startTime
+    +LocalTime endTime
+  }
+
+  class GuestData <<record>> {
+    +String fullName
+    +String email
+    +String address
+    +String carPlate
+  }
+
+  class GarageDto <<record>> {
+    +int id
+    +String name
+    +String address
+    +GarageAvailability availability
+  }
+
+  class QuoteDto <<record>> {
+    +String name
+    +String quoteNumber
+    +String spaceCode
+    +String spaceFloor
+    +int spaceType
+    +BigDecimal price
+    +LocalDate dateFrom
+    +LocalDate dateTo
+    +LocalTime timeFrom
+    +LocalTime timeTo
+  }
+
+  class ContractDto <<record>> {
+    +QuoteDto quote
+    +LocalDate invoiceDate
+  }
+
+  ContractDto --> QuoteDto : contains
+  Contract ..> GuestData : stores as JSON
+}
+
+' ==================== REPOSITORIES ====================
+package "repositories" #Wheat {
+  interface GarageRepository
+  interface ParkingSpaceRepository
+  interface SpaceReservationsRepository
+  interface ContractRepository
+  interface CustomerRepository
+  interface CarRepository
+  interface InvoiceRepository
+  interface PriceTypeRepository
+}
+
+' ==================== SERVICES ====================
+package "services" #MistyRose {
+  class GarageService {
+    +GetAllGarages() : List<GarageDto>
+    +GetGarage(id) : Optional<GarageDto>
+  }
+
+  class ParkingSpaceService {
+    +CheckAvailabilityForGarage(garageId, spaceType, request) : GarageAvailability
+  }
+
+  class ContractService {
+    +createQuote(garageId, request) : Optional<QuoteDto>
+    +getQuote(quoteNo) : Optional<QuoteDto>
+    +createContract(contractNumber) : Optional<ContractDto>
+    +cancelContract(contractNo) : void
+  }
+
+  class SpaceReservationsService {
+    +assignParkingSpace(garageId, request, hasCustomer) : SpaceReservation
+    +getGarageReservations(garageId, date) : List<SpaceReservationDto>
+  }
+
+  class CarService {
+    +getCar(plateno) : Car
+  }
+
+  class PriceBuilder {
+    +days(dateFrom, dateTo) : PriceBuilder
+    +hours(timeFrom, timeTo) : PriceBuilder
+    +spaceType(type) : PriceBuilder
+    +generatePriceType() : PriceType
+    +{static} calculateTotal(...) : BigDecimal
+  }
+
+  class ContractMapper {
+    +mapToQuote(contract) : QuoteDto
+    +mapToContractDto(contract) : ContractDto
+  }
+
+  GarageService --> GarageRepository : uses
+  ParkingSpaceService --> ParkingSpaceRepository : uses
+  ContractService --> ContractRepository : uses
+  ContractService --> CustomerRepository : uses
+  ContractService --> InvoiceRepository : uses
+  ContractService --> ParkingSpaceService : uses
+  ContractService --> SpaceReservationsService : uses
+  ContractService --> ContractMapper : uses
+  SpaceReservationsService --> SpaceReservationsRepository : uses
+  SpaceReservationsService --> ParkingSpaceRepository : uses
+  SpaceReservationsService --> PriceBuilder : uses
+  SpaceReservationsService --> CarService : uses
+  CarService --> CarRepository : uses
+  PriceBuilder --> PriceTypeRepository : uses
+}
+
+' ==================== CONTROLLERS ====================
+package "controllers" #Lavender {
+  class GarageController {
+    +getAll() : List<GarageDto>
+    +get(id) : GarageDto
+    +requestReservation(id, request) : QuoteDto
+  }
+
+  class ContractController {
+    +getQuote(quoteNo) : QuoteDto
+    +acceptQuote(quoteNo) : ContractDto
+    +cancelQuote(quoteNo) : void
+  }
+
+  GarageController --> GarageService : uses
+  GarageController --> ContractService : delegates reserve to
+  ContractController --> ContractService : uses
+}
+
+@enduml

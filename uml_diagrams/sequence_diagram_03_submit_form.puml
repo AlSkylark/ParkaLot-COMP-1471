@@ -1,0 +1,106 @@
+@startuml Make a Reservation - 3. Submit Form and Get Quote
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Controllers" #Lavender
+  participant GarageController
+end box
+
+box "Services" #MistyRose
+  participant ContractService
+  participant ParkingSpaceService
+  participant SpaceReservationsService
+  participant CarService
+  participant PriceBuilder
+  participant ContractMapper
+end box
+
+box "Repositories" #Wheat
+  participant ParkingSpaceRepository
+  participant CustomerRepository
+  participant CarRepository
+  participant PriceTypeRepository
+  participant ContractRepository
+end box
+
+== 3. User fills form and submits ==
+
+User -> GarageController : POST /garages/{id}/reserve\n(ReservationRequest)
+activate GarageController
+
+GarageController -> ContractService : createQuote(garageId, request)
+activate ContractService
+
+ContractService -> ParkingSpaceService : CheckAvailabilityForGarage(garageId, spaceType, request)
+activate ParkingSpaceService
+ParkingSpaceService -> ParkingSpaceRepository : checkDayAvailability() or checkDateRangeAvailability()
+ParkingSpaceRepository --> ParkingSpaceService : ParkingAvailabilityDto
+
+alt Garage is FULL
+  ParkingSpaceService --> ContractService : GarageAvailability.FULL
+  deactivate ParkingSpaceService
+  ContractService --> GarageController : Optional.empty()
+  GarageController --> User : 400 Bad Request — "No availability for the selected dates"
+else Space available
+  ParkingSpaceService --> ContractService : GarageAvailability (not FULL)
+  deactivate ParkingSpaceService
+
+  ContractService -> CustomerRepository : findByEmail(request.email)
+  CustomerRepository --> ContractService : Optional<Customer>
+
+  alt Registered customer
+    note right of ContractService : Sets customer on Contract
+  else Guest user
+    note right of ContractService : Creates GuestData\nand stores as JSON on Contract
+  end
+
+  ContractService -> SpaceReservationsService : assignParkingSpace(garageId, request, hasCustomer)
+  activate SpaceReservationsService
+
+  SpaceReservationsService -> ParkingSpaceRepository : findAvailableSpace(garageId, spaceType, dates/times)
+  ParkingSpaceRepository --> SpaceReservationsService : ParkingSpace
+
+  SpaceReservationsService -> PriceBuilder : days(startDate, endDate)
+  activate PriceBuilder
+  SpaceReservationsService -> PriceBuilder : hours(startTime, endTime)
+  SpaceReservationsService -> PriceBuilder : spaceType(spaceTypeId)
+  SpaceReservationsService -> PriceBuilder : generatePriceType()
+  PriceBuilder -> PriceTypeRepository : findByName(priceName)
+  PriceTypeRepository --> PriceBuilder : PriceType
+  PriceBuilder --> SpaceReservationsService : PriceType
+  deactivate PriceBuilder
+
+  opt Registered customer with car plate
+    SpaceReservationsService -> CarService : getCar(carPlate)
+    activate CarService
+    CarService -> CarRepository : findByPlateno(carPlate)
+    CarRepository --> CarService : Car
+    CarService --> SpaceReservationsService : Car
+    deactivate CarService
+  end
+
+  SpaceReservationsService --> ContractService : SpaceReservation
+  deactivate SpaceReservationsService
+
+  ContractService -> ContractRepository : save(contract)
+  ContractRepository --> ContractService : Contract (persisted)
+
+  ContractService -> ContractMapper : mapToQuote(contract)
+  activate ContractMapper
+  ContractMapper --> ContractService : QuoteDto
+  deactivate ContractMapper
+
+  ContractService --> GarageController : Optional<QuoteDto>
+  deactivate ContractService
+
+  GarageController --> User : 200 OK — QuoteDto
+  deactivate GarageController
+end
+
+@enduml

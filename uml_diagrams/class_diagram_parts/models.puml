@@ -1,0 +1,135 @@
+@startuml Class Diagram - Models
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "models" #LightBlue {
+  abstract class BaseModel {
+    +Integer id
+  }
+
+  entity Garage {
+    +String name
+    +Address address
+    +Set<ParkingSpace> parkingspaces
+    +Set<Scanner> scanners
+    +getFormattedAddress() : String
+  }
+
+  entity Address {
+    +String address1
+    +String address2
+    +String postcode
+    +String town
+    +String country
+    +toString() : String
+  }
+
+  entity ParkingSpace {
+    +String code
+    +Integer spacetype
+    +String floor
+    +SensorDevice sensor
+    +Garage garage 
+  }
+
+  entity Scanner {
+    +Integer scannertype
+    +Garage garage
+  }
+
+  entity SensorDevice {
+    +Integer status
+    +ParkingSpace parkingspace
+  }
+
+  entity Contract {
+    +String contractNumber
+    +LocalDateTime dateCreated
+    +LocalDateTime dateAgreed
+    +boolean isRecurrent
+    +boolean isQuote
+    +GuestData guestData
+    +Customer customer
+    +Set<SpaceReservation> spaceReservations
+    +Set<Invoice> invoices
+    +getCustomerFullName() : String
+  }
+
+  entity SpaceReservation {
+    +LocalDate datefrom
+    +LocalDate dateto
+    +LocalTime timefrom
+    +LocalTime timeto
+    +Car car
+    +ParkingSpace space
+    +PriceType pricetype 
+    +Contract contract
+  }
+
+  entity Customer {
+    +String email
+    +String firstname
+    +String lastname
+    +Integer title
+    +boolean iscorporate
+    +Address address 
+    +Set<Car> cars
+    +getFullName() : String
+    +getFormattedAddress() : String
+  }
+
+  entity Car {
+    +String plateno
+    +int cartype
+    +Customer customer
+  }
+
+  entity Invoice {
+    +String invoicenumber
+    +LocalDateTime datecreated
+    +LocalDateTime datepaid
+    +BigDecimal total
+    +boolean isrefund
+    +Discount discount 
+    +Contract contract 
+  }
+
+  entity PriceType {
+    +String name
+    +BigDecimal price
+  }
+
+  entity Discount {
+    +Integer discounttype
+    +Integer percentageamount
+    +BigDecimal flatamount
+  }
+
+  entity "All entities"
+
+  BaseModel <|-- "All entities"
+
+  Garage "1" *-down- "0..*" ParkingSpace : contains
+  Garage "1" *-- "0..*" Scanner : has
+  Garage "1" -- "1" Address
+  Customer "1" -- "1" Address
+  Customer "1" *-- "0..*" Car : owns
+  SensorDevice -[hidden]down- Car
+
+  ParkingSpace "1" -- "0..1" SensorDevice : monitored by
+
+  Contract "0..*" --> "0..1" Customer : linked to
+  Contract "1" *-- "1..*" SpaceReservation : holds
+  Contract "1" *-- "0..*" Invoice : generates
+
+  SpaceReservation "1" --> "1" ParkingSpace : assigned to
+  SpaceReservation "1" --> "0..1" Car : for
+  SpaceReservation "1" --> "1" PriceType : priced by
+
+  Invoice "0..*" --> "0..1" Discount : applies
+}
+
+@enduml

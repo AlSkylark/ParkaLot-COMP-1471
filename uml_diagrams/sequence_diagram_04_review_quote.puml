@@ -1,0 +1,55 @@
+@startuml Make a Reservation - 4. Review Quote
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Controllers" #Lavender
+  participant ContractController
+end box
+
+box "Services" #MistyRose
+  participant ContractService
+  participant ContractMapper
+end box
+
+box "Repositories" #Wheat
+  participant ContractRepository
+end box
+
+== 4. User reviews the quote ==
+
+User -> ContractController : GET /contracts/quote/{quoteNo}
+activate ContractController
+
+ContractController -> ContractService : getQuote(quoteNo)
+activate ContractService
+ContractService -> ContractRepository : findByContractNumber(quoteNo)
+ContractRepository --> ContractService : Optional<Contract>
+ContractService -> ContractMapper : mapToQuote(contract)
+activate ContractMapper
+ContractMapper --> ContractService : QuoteDto
+deactivate ContractMapper
+ContractService --> ContractController : Optional<QuoteDto>
+deactivate ContractService
+
+ContractController --> User : 200 OK — QuoteDto
+deactivate ContractController
+
+alt User cancels the quote
+  User -> ContractController : DELETE /contracts/quote/{quoteNo}
+  activate ContractController
+  ContractController -> ContractService : cancelContract(quoteNo)
+  activate ContractService
+  ContractService -> ContractRepository : deleteByContractNumber(quoteNo)
+  ContractService --> ContractController
+  deactivate ContractService
+  ContractController --> User : 200 OK
+  deactivate ContractController
+end
+
+@enduml

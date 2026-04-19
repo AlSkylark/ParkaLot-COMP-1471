@@ -1,0 +1,30 @@
+@startuml Class Diagram - Enums
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "enums" #LightYellow {
+  enum SpaceType {
+    NORMAL
+    ELECTRIC
+    --
+    -String label
+    --
+    +getLabel() : String
+  }
+
+  enum GarageAvailability {
+    HIGH_AVAILABILITY
+    MEDIUM_AVAILABILITY
+    LOW_AVAILABILITY
+    FULL
+    --
+    -String label
+    --
+    +getLabel() : String
+  }
+}
+
+@enduml

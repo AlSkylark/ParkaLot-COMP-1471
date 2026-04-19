@@ -1,0 +1,37 @@
+@startuml Class Diagram - Controllers
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "controllers" #Lavender {
+  class GarageController {
+    +getAll() : List<GarageDto>
+    +get(id) : GarageDto
+    +getDropdown() : DropdownItem
+    +requestReservation(id, request) : QuoteDto
+    +getAllReservations(id) : List<SpaceReservationDto>
+    +getSpaces(id) : List<ParkingSpaceDto>
+    +addSpace(id, request) : ParkingSpaceDto
+    +getScanners(id) : List<ScannerDto>
+    +addScanner(id, request) : ScannerDto
+  }
+
+  class ContractController {
+    +get(id) : ContractDetailDto
+    +update(id, request) : ResponseEntity
+    +cancel(id) : ResponseEntity
+    +getQuote(quoteNo) : QuoteDto
+    +acceptQuote(quoteNo) : ContractDto
+    +cancelQuote(quoteNo) : void
+  }
+}
+
+' Controller → Service cross-group references
+' (services shown as simple stubs)
+GarageController --> GarageService : uses
+GarageController --> ContractService : delegates reserve to
+ContractController --> ContractService : uses
+
+@enduml

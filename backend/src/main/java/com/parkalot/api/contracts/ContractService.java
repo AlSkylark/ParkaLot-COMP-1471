@@ -112,6 +112,7 @@ public class ContractService {
   //TODO: This should return a ContractDto when the user confirms they are happy with the quote.
   public Optional<ContractDto> createContract(String contractNumber) {
     var result = repo.findByContractNumber(contractNumber);
+
     var contract = result.orElse(null);
     if (contract == null) {
       return Optional.empty();

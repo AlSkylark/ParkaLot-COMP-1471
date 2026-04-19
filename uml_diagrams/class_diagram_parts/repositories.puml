@@ -1,0 +1,67 @@
+@startuml Class Diagram - Repositories
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "JPA repositories" #Wheat {
+
+  interface GarageRepository
+  interface InvoiceRepository
+  
+  interface JpaRepository<T, Integer>{}
+  note left: All repositories in the application\ninherit from JpaRepository,which\ncontains handy CRUD methods\nprovided by the Spring framework.
+
+  interface "All repositories"
+
+  interface BaseRepository<T> {
+    findAllByOrderByIdAsc() : List<T>
+  }
+  
+  interface ParkingSpaceRepository{
+    checkCurrentAvailability(garageId) : ParkingAvailabilityDto
+    checkCurrentAvailability(garageId, spaceType) : ParkingAvailabilityDto
+    checkDayAvailability(garageId, spaceType, date, timeFrom, timeTo) : ParkingAvailabilityDto
+    checkDateRangeAvailability(garageId, spaceType, dateFrom, dateTo) : ParkingAvailabilityDto
+    findAvailableSpace(garageId, spaceType, dateFrom, dateTo) : ParkingSpaceRepository
+    findAvailableSpace(garageId, spaceType, date, timeFrom, timeTo) : ParkingSpace
+  }
+  
+  interface SpaceReservationsRepository{
+    findByGarageId(garageId, date) : SpaceReservation
+    findByDate(date) : SpaceReservation
+  }
+  
+  interface ContractRepository{
+    findByContractNumber(contractNumber) : Optional<Contract>
+    deleteByContractNumber(contractNumber)
+  }
+
+  interface CustomerRepository{
+    findByEmail(String email) : Optional<Customer>
+  }
+
+  interface CarRepository{
+    findByPlateno(plateNo) : Optional<Car>
+  }
+
+  
+
+  interface PriceTypeRepository {
+    findByName(String name) : Optional<PriceType>
+  }
+
+  JpaRepository <|--BaseRepository
+  BaseRepository <|--"All repositories"
+
+  ParkingSpaceRepository -[hidden]down- SpaceReservationsRepository
+  SpaceReservationsRepository -[hidden]down- ContractRepository
+  ContractRepository -[hidden]down- CustomerRepository
+  CustomerRepository -[hidden]down- CarRepository
+  CarRepository -[hidden]down- PriceTypeRepository
+  PriceTypeRepository -[hidden]down- GarageRepository
+  GarageRepository -[hidden]down- InvoiceRepository
+}
+
+@enduml

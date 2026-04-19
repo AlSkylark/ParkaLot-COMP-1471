@@ -1,0 +1,126 @@
+@startuml Class Diagram - Services
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "services" #lightpink {
+  interface "<<Repository>>"
+  ' Tier 1 — primary orchestrators
+  package "Primary orchestrators" #azure{
+
+  
+    class GarageService {
+      -GarageRepository repo 
+      -ParkingSpaceService ParkingSpaceService
+      -ScannerRepository scannerRepo 
+      +GetAllGarages() : List<GarageDto>
+      +GetGarage(id) : Optional<GarageDto>
+      +getForDropdown() : DropdownItem
+      +addSpace(garageId, request) : ParkingSpaceDto 
+      +getScanners(int garageId) : List<ScannerDto>
+      +addScanner(garageId, type) : ScannerDto
+    }
+
+    class ContractService {
+      -ContractRepository repo 
+      -CustomerRepository customerRepo 
+      -ParkingSpaceService parkingSpaceService 
+      -ContractMapper mapper 
+      -SpaceReservationsService spaceReservationsService 
+      -InvoiceRepository invoiceRepo 
+      +getQuote(quoteNo) : Optional<QuoteDto>
+      +createQuote(garageId, request) : Optional<QuoteDto>
+      +createContract(contractNumber) : Optional<ContractDto>
+      +getContractDetail(contractNumber) : Optional<ContractDetailDto>
+      +updateContract(id, isRecurrent, guestData) : void
+      +cancelContract(id) : void
+      +cancelContract(contractNo) : void
+      +generateContractNumber(length) : String
+    }
+  }
+
+  ' Tier 2 — called by ContractService
+  package "Auxiliary services" #beige{
+    
+    class ParkingSpaceService {
+      -ParkingSpaceRepository repo 
+      +GetAllSpacesForGarage(id) : List<ParkingSpaceDto>
+      +CheckAvailabilityForGarage(id) : GarageAvailability
+      +CheckAvailabilityForGarage(id, type) : GarageAvailability
+      +CheckAvailabilityForGarage(garageId, type, request) : GarageAvailability
+      +getAsDropdownItems() : List<DropdownItem>
+      +addSpace(garage, request) : ParkingSpace 
+      +deleteSpace(id) : boolean
+      -CalculateAvailability(free, total) : GarageAvailability
+    }
+
+    class SpaceReservationsService {
+      -SpaceReservationRepository repo 
+      -PriceBuilder priceBuilder 
+      -ParkingSpaceRepository parkingSpaceRepo 
+      -CarService carService 
+      -SpaceReservationMapper mapper 
+      +assignParkingSpace(garageId, request, hasCustomer) : SpaceReservation
+      +getGarageReservations(garageId, date) : List<SpaceReservationDto>
+      +getAllReservations(date) : List<SpaceReservationDto>
+      +updateReservation(id, request) : void
+      +cancelReservation(reservationId) : void 
+      -getAvailableSpace(garageId, request) : ParkingSpace
+    }
+
+    class CarService {
+      -CarRepository repo 
+      +getCar(plateno) : Car
+      +createCar(customer, plateNo, type) : Car 
+      +deleteCar(id) : boolean
+    }
+    
+  }
+
+  ' Tier 3 — supporting components
+  package "Supporting components" #lightsalmon{
+    
+    class PriceBuilder {
+      -PriceTypeRepository repo 
+      -int BULKY_DAY_COUNT
+      -String HOURLY
+      -String FULLDAY
+      -String BULKY
+      -boolean multiDay
+      -boolean isBulky
+      -SpaceType type
+      +days(dateFrom, dateTo) : PriceBuilder
+      +hours(timeFrom, timeTo) : PriceBuilder
+      +spaceType(type) : PriceBuilder
+      +generatePriceType() : PriceType
+      +{static} calculateTotal(...) : BigDecimal
+    }
+
+    class ContractMapper {
+      -SpaceReservationsMapper spaceReservationsMapper 
+      +mapToQuote(contract) : QuoteDto
+      +mapToContractDto(contract) : ContractDto
+      +mapToContractDetail(contract) : ContractDetailDto
+    }
+    
+  }
+
+  ' Intra-service relationships
+  ContractService -down-> ParkingSpaceService : uses
+  ContractService -down-> SpaceReservationsService : uses
+  ContractService -down-> ContractMapper : uses
+  SpaceReservationsService -down-> PriceBuilder : uses
+  SpaceReservationsService -down-> CarService : uses
+}
+
+
+GarageService --> "<<Repository>>" : uses
+ParkingSpaceService --> "<<Repository>>" : uses
+ContractService --> "<<Repository>>" : uses
+SpaceReservationsService --> "<<Repository>>" : uses
+CarService --> "<<Repository>>" : uses
+PriceBuilder --> "<<Repository>>" : uses
+
+@enduml
