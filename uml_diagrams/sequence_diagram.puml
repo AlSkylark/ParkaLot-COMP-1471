@@ -1,0 +1,252 @@
+@startuml Make a Reservation - Sequence Diagram
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Controllers" #Lavender
+  participant GarageController
+  participant ContractController
+end box
+
+box "Services" #MistyRose
+  participant GarageService
+  participant ContractService
+  participant ParkingSpaceService
+  participant SpaceReservationsService
+  participant CarService
+  participant PriceBuilder
+  participant ContractMapper
+end box
+
+box "Repositories" #Wheat
+  participant GarageRepository
+  participant ParkingSpaceRepository
+  participant CustomerRepository
+  participant SpaceReservationsRepository
+  participant CarRepository
+  participant PriceTypeRepository
+  participant ContractRepository
+  participant InvoiceRepository
+end box
+
+' ─────────────────────────────────────────────
+' STEP 1 — Browse garages
+' ─────────────────────────────────────────────
+== 1. User browses the garage list ==
+
+User -> GarageController : GET /garages
+activate GarageController
+
+GarageController -> GarageService : GetAllGarages()
+activate GarageService
+
+GarageService -> GarageRepository : findAll()
+GarageRepository --> GarageService : List<Garage>
+
+loop for each Garage
+  GarageService -> ParkingSpaceService : CheckAvailabilityForGarage(garageId)
+  activate ParkingSpaceService
+  ParkingSpaceService -> ParkingSpaceRepository : checkCurrentAvailability(garageId)
+  ParkingSpaceRepository --> ParkingSpaceService : ParkingAvailabilityDto
+  ParkingSpaceService --> GarageService : GarageAvailability
+  deactivate ParkingSpaceService
+end
+
+GarageService --> GarageController : List<GarageDto>
+deactivate GarageService
+
+GarageController --> User : 200 OK — List<GarageDto>
+deactivate GarageController
+
+' ─────────────────────────────────────────────
+' STEP 2 — Select a garage
+' ─────────────────────────────────────────────
+== 2. User selects a garage ==
+
+User -> GarageController : GET /garages/{id}
+activate GarageController
+
+GarageController -> GarageService : GetGarage(id)
+activate GarageService
+
+GarageService -> GarageRepository : findById(id)
+GarageRepository --> GarageService : Garage
+
+GarageService -> ParkingSpaceService : CheckAvailabilityForGarage(id)
+activate ParkingSpaceService
+ParkingSpaceService -> ParkingSpaceRepository : checkCurrentAvailability(id)
+ParkingSpaceRepository --> ParkingSpaceService : ParkingAvailabilityDto
+ParkingSpaceService --> GarageService : GarageAvailability
+deactivate ParkingSpaceService
+
+GarageService -> ParkingSpaceService : GetAllSpacesForGarage(id)
+activate ParkingSpaceService
+ParkingSpaceService -> ParkingSpaceRepository : findByGarageId(id)
+ParkingSpaceRepository --> ParkingSpaceService : List<ParkingSpace>
+ParkingSpaceService --> GarageService : List<ParkingSpaceDto>
+deactivate ParkingSpaceService
+
+GarageService --> GarageController : Optional<GarageDto>
+deactivate GarageService
+
+GarageController --> User : 200 OK — GarageDto (with spaces)
+deactivate GarageController
+
+' ─────────────────────────────────────────────
+' STEP 3 — Submit reservation form → get quote
+' ─────────────────────────────────────────────
+== 3. User fills form and submits ==
+
+User -> GarageController : POST /garages/{id}/reserve\n(ReservationRequest)
+activate GarageController
+
+GarageController -> ContractService : createQuote(garageId, request)
+activate ContractService
+
+ContractService -> ParkingSpaceService : CheckAvailabilityForGarage(garageId, spaceType, request)
+activate ParkingSpaceService
+ParkingSpaceService -> ParkingSpaceRepository : checkDayAvailability() or checkDateRangeAvailability()
+ParkingSpaceRepository --> ParkingSpaceService : ParkingAvailabilityDto
+
+alt Garage is FULL
+  ParkingSpaceService --> ContractService : GarageAvailability.FULL
+  deactivate ParkingSpaceService
+  ContractService --> GarageController : Optional.empty()
+  GarageController --> User : 400 Bad Request — "No availability for the selected dates"
+else Space available
+  ParkingSpaceService --> ContractService : GarageAvailability (not FULL)
+  deactivate ParkingSpaceService
+
+  ContractService -> CustomerRepository : findByEmail(request.email)
+  CustomerRepository --> ContractService : Optional<Customer>
+
+  alt Registered customer
+    note right of ContractService : Sets customer on Contract
+  else Guest user
+    note right of ContractService : Creates GuestData\nand stores as JSON on Contract
+  end
+
+  ContractService -> SpaceReservationsService : assignParkingSpace(garageId, request, hasCustomer)
+  activate SpaceReservationsService
+
+  SpaceReservationsService -> ParkingSpaceRepository : findAvailableSpace(garageId, spaceType, dates/times)
+  ParkingSpaceRepository --> SpaceReservationsService : ParkingSpace
+
+  SpaceReservationsService -> PriceBuilder : days(startDate, endDate)
+  activate PriceBuilder
+  SpaceReservationsService -> PriceBuilder : hours(startTime, endTime)
+  SpaceReservationsService -> PriceBuilder : spaceType(spaceTypeId)
+  SpaceReservationsService -> PriceBuilder : generatePriceType()
+  PriceBuilder -> PriceTypeRepository : findByName(priceName)
+  PriceTypeRepository --> PriceBuilder : PriceType
+  PriceBuilder --> SpaceReservationsService : PriceType
+  deactivate PriceBuilder
+
+  opt Registered customer with car plate
+    SpaceReservationsService -> CarService : getCar(carPlate)
+    activate CarService
+    CarService -> CarRepository : findByPlateno(carPlate)
+    CarRepository --> CarService : Car
+    CarService --> SpaceReservationsService : Car
+    deactivate CarService
+  end
+
+  SpaceReservationsService --> ContractService : SpaceReservation
+  deactivate SpaceReservationsService
+
+  ContractService -> ContractRepository : save(contract)
+  ContractRepository --> ContractService : Contract (persisted)
+
+  ContractService -> ContractMapper : mapToQuote(contract)
+  activate ContractMapper
+  ContractMapper --> ContractService : QuoteDto
+  deactivate ContractMapper
+
+  ContractService --> GarageController : Optional<QuoteDto>
+  deactivate ContractService
+
+  GarageController --> User : 200 OK — QuoteDto
+  deactivate GarageController
+end
+
+' ─────────────────────────────────────────────
+' STEP 4 — User reviews quote
+' ─────────────────────────────────────────────
+== 4. User reviews the quote ==
+
+User -> ContractController : GET /contracts/quote/{quoteNo}
+activate ContractController
+
+ContractController -> ContractService : getQuote(quoteNo)
+activate ContractService
+ContractService -> ContractRepository : findByContractNumber(quoteNo)
+ContractRepository --> ContractService : Optional<Contract>
+ContractService -> ContractMapper : mapToQuote(contract)
+activate ContractMapper
+ContractMapper --> ContractService : QuoteDto
+deactivate ContractMapper
+ContractService --> ContractController : Optional<QuoteDto>
+deactivate ContractService
+
+ContractController --> User : 200 OK — QuoteDto
+deactivate ContractController
+
+alt User cancels the quote
+  User -> ContractController : DELETE /contracts/quote/{quoteNo}
+  activate ContractController
+  ContractController -> ContractService : cancelContract(quoteNo)
+  activate ContractService
+  ContractService -> ContractRepository : deleteByContractNumber(quoteNo)
+  ContractService --> ContractController
+  deactivate ContractService
+  ContractController --> User : 200 OK
+  deactivate ContractController
+end
+
+' ─────────────────────────────────────────────
+' STEP 5 — User accepts quote → confirmation
+' ─────────────────────────────────────────────
+== 5. User accepts the quote ==
+
+User -> ContractController : GET /contracts/quote/{quoteNo}/accept
+activate ContractController
+
+ContractController -> ContractService : createContract(quoteNo)
+activate ContractService
+
+ContractService -> ContractRepository : findByContractNumber(quoteNo)
+ContractRepository --> ContractService : Contract
+
+ContractService -> ContractRepository : save(contract)\n[isQuote=false, dateAgreed=now]
+
+ContractService -> InvoiceRepository : count()
+InvoiceRepository --> ContractService : invoiceCount
+
+note right of ContractService : Creates Invoice with\nnumber, date, and calculated total
+
+ContractService -> PriceBuilder : calculateTotal(priceType, dates, times)
+activate PriceBuilder
+PriceBuilder --> ContractService : BigDecimal total
+deactivate PriceBuilder
+
+ContractService -> InvoiceRepository : save(invoice)
+
+ContractService -> ContractMapper : mapToContractDto(contract)
+activate ContractMapper
+ContractMapper --> ContractService : ContractDto
+deactivate ContractMapper
+
+ContractService --> ContractController : Optional<ContractDto>
+deactivate ContractService
+
+ContractController --> User : 200 OK — ContractDto\n(quoteNumber + invoiceDate)
+deactivate ContractController
+
+note over User : User sees confirmation\npage with booking reference
+
+@enduml

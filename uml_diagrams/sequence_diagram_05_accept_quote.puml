@@ -1,0 +1,64 @@
+@startuml Make a Reservation - 5. Accept Quote
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Controllers" #Lavender
+  participant ContractController
+end box
+
+box "Services" #MistyRose
+  participant ContractService
+  participant PriceBuilder
+  participant ContractMapper
+end box
+
+box "Repositories" #Wheat
+  participant ContractRepository
+  participant InvoiceRepository
+end box
+
+== 5. User accepts the quote ==
+
+User -> ContractController : GET /contracts/quote/{quoteNo}/accept
+activate ContractController
+
+ContractController -> ContractService : createContract(quoteNo)
+activate ContractService
+
+ContractService -> ContractRepository : findByContractNumber(quoteNo)
+ContractRepository --> ContractService : Contract
+
+ContractService -> ContractRepository : save(contract)\n[isQuote=false, dateAgreed=now]
+
+ContractService -> InvoiceRepository : count()
+InvoiceRepository --> ContractService : invoiceCount
+
+note right of ContractService : Creates Invoice with\nnumber, date, and calculated total
+
+ContractService -> PriceBuilder : calculateTotal(priceType, dates, times)
+activate PriceBuilder
+PriceBuilder --> ContractService : BigDecimal total
+deactivate PriceBuilder
+
+ContractService -> InvoiceRepository : save(invoice)
+
+ContractService -> ContractMapper : mapToContractDto(contract)
+activate ContractMapper
+ContractMapper --> ContractService : ContractDto
+deactivate ContractMapper
+
+ContractService --> ContractController : Optional<ContractDto>
+deactivate ContractService
+
+ContractController --> User : 200 OK — ContractDto\n(quoteNumber + invoiceDate)
+deactivate ContractController
+
+note over User : User sees confirmation\npage with booking reference
+
+@enduml

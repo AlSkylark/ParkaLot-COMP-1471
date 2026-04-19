@@ -1,0 +1,148 @@
+@startuml Make a Reservation - Sequence Diagram (Simplified v2)
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Backend" #Lavender
+  participant "«Controller»" as Controller
+  participant "«Service»" as Service
+  participant "«Repository»" as Repo
+end box
+
+' ─────────────────────────────────────────────
+' STEP 1 — Browse garages
+' ─────────────────────────────────────────────
+== 1. User browses the garage list ==
+
+User -> Controller : GET /garages
+activate Controller
+Controller -> Service : GarageService::GetAllGarages()
+activate Service
+Service -> Repo : GarageRepository::findAll()
+Repo --> Service : List<Garage>
+loop for each Garage
+  Service -> Repo : ParkingSpaceRepository::checkCurrentAvailability(garageId)
+  Repo --> Service : GarageAvailability
+end
+Service --> Controller : List<GarageDto>
+deactivate Service
+Controller --> User : 200 OK — List<GarageDto>
+deactivate Controller
+
+' ─────────────────────────────────────────────
+' STEP 2 — Select a garage
+' ─────────────────────────────────────────────
+== 2. User selects a garage ==
+
+User -> Controller : GET /garages/{id}
+activate Controller
+Controller -> Service : GarageService::GetGarage(id)
+activate Service
+Service -> Repo : GarageRepository::findById(id)
+Repo --> Service : Garage
+Service -> Repo : ParkingSpaceRepository::checkCurrentAvailability(id)
+Repo --> Service : GarageAvailability
+Service -> Repo : ParkingSpaceRepository::findByGarageId(id)
+Repo --> Service : List<ParkingSpace>
+Service --> Controller : Optional<GarageDto>
+deactivate Service
+Controller --> User : 200 OK — GarageDto (with spaces)
+deactivate Controller
+
+' ─────────────────────────────────────────────
+' STEP 3 — Submit reservation form → get quote
+' ─────────────────────────────────────────────
+== 3. User fills form and submits ==
+
+User -> Controller : POST /garages/{id}/reserve\n(ReservationRequest)
+activate Controller
+Controller -> Service : ContractService::createQuote(garageId, request)
+activate Service
+Service -> Repo : ParkingSpaceRepository::checkDayAvailability()\nor checkDateRangeAvailability()
+Repo --> Service : ParkingAvailabilityDto
+
+alt Garage is FULL
+  Service --> Controller : Optional.empty()
+  Controller --> User : 400 Bad Request — "No availability for the selected dates"
+else Space available
+  Service -> Repo : CustomerRepository::findByEmail(request.email)
+  Repo --> Service : Optional<Customer>
+
+  alt Registered customer
+    note right of Service : Sets customer on Contract
+  else Guest user
+    note right of Service : Creates GuestData\nand stores as JSON on Contract
+  end
+
+  Service -> Service : SpaceReservationsService::assignParkingSpace\n(garageId, request, hasCustomer)
+  note right : Finds available space, resolves price type\nvia PriceBuilder, and optionally links car
+
+  Service -> Repo : ContractRepository::save(contract)
+  Repo --> Service : Contract (persisted)
+
+  Service --> Controller : Optional<QuoteDto>
+  note right : Contract mapped to QuoteDto\ninternally via ContractMapper
+  deactivate Service
+
+  Controller --> User : 200 OK — QuoteDto
+  deactivate Controller
+end
+
+' ─────────────────────────────────────────────
+' STEP 4 — User reviews quote
+' ─────────────────────────────────────────────
+== 4. User reviews the quote ==
+
+User -> Controller : GET /contracts/quote/{quoteNo}
+activate Controller
+Controller -> Service : ContractService::getQuote(quoteNo)
+activate Service
+Service -> Repo : ContractRepository::findByContractNumber(quoteNo)
+Repo --> Service : Optional<Contract>
+Service --> Controller : Optional<QuoteDto>
+note right : Contract mapped to QuoteDto\ninternally via ContractMapper
+deactivate Service
+Controller --> User : 200 OK — QuoteDto
+deactivate Controller
+
+alt User cancels the quote
+  User -> Controller : DELETE /contracts/quote/{quoteNo}
+  activate Controller
+  Controller -> Service : ContractService::cancelContract(quoteNo)
+  activate Service
+  Service -> Repo : ContractRepository::deleteByContractNumber(quoteNo)
+  Service --> Controller
+  deactivate Service
+  Controller --> User : 200 OK
+  deactivate Controller
+end
+
+' ─────────────────────────────────────────────
+' STEP 5 — User accepts quote → confirmation
+' ─────────────────────────────────────────────
+== 5. User accepts the quote ==
+
+User -> Controller : GET /contracts/quote/{quoteNo}/accept
+activate Controller
+Controller -> Service : ContractService::createContract(quoteNo)
+activate Service
+Service -> Repo : ContractRepository::findByContractNumber(quoteNo)
+Repo --> Service : Contract
+Service -> Repo : ContractRepository::save(contract)\n[isQuote=false, dateAgreed=now]
+Service -> Service : PriceBuilder::calculateTotal(priceType, dates, times)
+note right : Calculates total price\nfor invoice generation
+Service -> Repo : InvoiceRepository::save(invoice)
+Service --> Controller : Optional<ContractDto>
+note right : Contract mapped to ContractDto\ninternally via ContractMapper
+deactivate Service
+Controller --> User : 200 OK — ContractDto\n(quoteNumber + invoiceDate)
+deactivate Controller
+
+note over User : User sees confirmation\npage with booking reference
+
+@enduml

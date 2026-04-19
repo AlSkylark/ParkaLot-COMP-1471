@@ -1,0 +1,51 @@
+@startuml Make a Reservation - 1. Browse Garages
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Controllers" #Lavender
+  participant GarageController
+end box
+
+box "Services" #MistyRose
+  participant GarageService
+  participant ParkingSpaceService
+end box
+
+box "Repositories" #Wheat
+  participant GarageRepository
+  participant ParkingSpaceRepository
+end box
+
+== 1. User browses the garage list ==
+
+User -> GarageController : GET /garages
+activate GarageController
+
+GarageController -> GarageService : GetAllGarages()
+activate GarageService
+
+GarageService -> GarageRepository : findAll()
+GarageRepository --> GarageService : List<Garage>
+
+loop for each Garage
+  GarageService -> ParkingSpaceService : CheckAvailabilityForGarage(garageId)
+  activate ParkingSpaceService
+  ParkingSpaceService -> ParkingSpaceRepository : checkCurrentAvailability(garageId)
+  ParkingSpaceRepository --> ParkingSpaceService : ParkingAvailabilityDto
+  ParkingSpaceService --> GarageService : GarageAvailability
+  deactivate ParkingSpaceService
+end
+
+GarageService --> GarageController : List<GarageDto>
+deactivate GarageService
+
+GarageController --> User : 200 OK — List<GarageDto>
+deactivate GarageController
+
+@enduml

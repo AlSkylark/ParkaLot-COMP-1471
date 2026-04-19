@@ -1,0 +1,62 @@
+@startuml Class Diagram - DTOs
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "dtos" #LightGreen {
+  record ReservationRequest {
+    +String fullName
+    +String email
+    +String address
+    +SpaceType spaceTypeId
+    +String carPlate
+    +Integer selectedCarId
+    +LocalDate startDate
+    +LocalDate endDate
+    +LocalTime startTime
+    +LocalTime endTime
+  }
+
+  record GuestData {
+    +String fullName
+    +String email
+    +String address
+    +String carPlate
+  }
+
+  record GarageDto {
+    +int id
+    +String name
+    +String address
+    +GarageAvailability availability
+    +Optional<List<ParkingSpaceDto>> spaces
+  }
+
+  record QuoteDto {
+    +String name
+    +String quoteNumber
+    +String spaceCode
+    +String spaceFloor
+    +int spaceType
+    +BigDecimal price
+    +LocalDate dateFrom
+    +LocalDate dateTo
+    +LocalTime timeFrom
+    +LocalTime timeTo
+  }
+
+  record ContractDto {
+    +QuoteDto quote
+    +LocalDate invoiceDate
+  }
+
+  entity Contract{}
+
+
+  ContractDto --> QuoteDto : contains
+  Contract ..> GuestData : stores as JSON
+}
+
+@enduml

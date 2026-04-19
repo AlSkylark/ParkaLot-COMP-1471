@@ -1,0 +1,108 @@
+@startuml Make a Reservation - Deployment Diagram
+
+skinparam nodeBackgroundColor #F5F5F5
+skinparam nodeBorderColor #666666
+skinparam nodeFontStyle bold
+skinparam componentBackgroundColor #FEFEFE
+skinparam componentBorderColor #AAAAAA
+skinparam artifactBackgroundColor #D4EDDA
+skinparam artifactBorderColor #28A745
+skinparam databaseBackgroundColor #FFF3CD
+skinparam databaseBorderColor #FFC107
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+' ─────────────────────────────────────────
+' DEVELOPER MACHINE
+' ─────────────────────────────────────────
+node "Developer Machine" as devMachine {
+  component "Git Client" as git
+}
+
+' ─────────────────────────────────────────
+' GITHUB
+' ─────────────────────────────────────────
+node "GitHub" as github #EEEEFF {
+
+  node "Repository\nAlSkylark/ParkaLot-COMP-1471" as repo {
+    component "main branch" as mainBranch
+  }
+
+  node "GitHub Actions (CI/CD)" as gha #DDEEFF {
+
+    node "deploy-frontend.yml" as fePipeline {
+      component "actions/setup-node@v6\n[Node 24]" as feNode
+      component "npm ci + npm run build\n[Vite → dist/]" as feBuild
+      component "actions/deploy-pages@v4" as feDeploy
+      feNode -down-> feBuild
+      feBuild -down-> feDeploy
+    }
+
+    node "deploy-backend.yml" as bePipeline {
+      component "actions/setup-java@v4\n[Java 25 · Microsoft dist.]" as beJava
+      component "mvn clean install\n[-DskipTests]" as beBuild
+      component "azure/webapps-deploy@v3\n[OIDC auth]" as beDeployAction
+      beJava -down-> beBuild
+      beBuild -down-> beDeployAction
+    }
+  }
+
+  node "GitHub Pages" as ghPages #DDEEFF {
+    artifact "React SPA (static)\nalskylark.github.io/ParkaLot-COMP-1471/" as feArtifact
+  }
+}
+
+' ─────────────────────────────────────────
+' MICROSOFT AZURE
+' ─────────────────────────────────────────
+node "Microsoft Azure\n[Germany West Central]" as azure #E8F4FD {
+
+  node "Azure App Service\n[Free Tier · slot: Production]" as appService #D0E8FA {
+    component "Java 25 Runtime" as javaRuntime
+    artifact "parkalot-backend.jar\n(Spring Boot)" as beArtifact
+    javaRuntime -down-> beArtifact : executes
+  }
+}
+
+' ─────────────────────────────────────────
+' AIVEN CLOUD
+' ─────────────────────────────────────────
+node "Aiven Cloud" as aiven #FFF8E1 {
+  database "PostgreSQL\n[Managed · SSL enforced]" as pgDb
+  note right of pgDb
+    Manually provisioned
+    Credentials injected via
+    Azure App Service env vars:
+    DB_CONNECTION_STRING
+    DB_USERNAME / DB_PASSWORD
+  end note
+}
+
+' ─────────────────────────────────────────
+' USER BROWSER
+' ─────────────────────────────────────────
+node "User Browser" as browser {
+  component "React SPA" as spa
+}
+
+' ─────────────────────────────────────────
+' RELATIONSHIPS
+' ─────────────────────────────────────────
+
+' Dev → GitHub
+git -right-> mainBranch : git push
+
+' GitHub → CI triggers
+mainBranch -down-> fePipeline : triggers on push to main
+mainBranch -down-> bePipeline : triggers on push to main
+
+' CI → Deploy targets
+feDeploy -down-> feArtifact : publishes static build\nto GitHub Pages
+beDeployAction -right-> appService : deploys JAR\nvia Azure OIDC
+
+' Runtime connections
+feArtifact -down-> spa : served to browser
+spa -right-> beArtifact : HTTPS REST API\n(VITE_API_URL/api)
+beArtifact -down-> pgDb : JDBC over SSL
+
+@enduml

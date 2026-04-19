@@ -107,7 +107,7 @@ public class GarageController {
   }
 
   @PostMapping("/{id}/spaces")
-  public ResponseEntity<ParkingSpaceDto> postMethodName(
+  public ResponseEntity<ParkingSpaceDto> addSpace(
     @PathVariable int id,
     @RequestBody ParkingSpaceCreateRequest request
   ) {
@@ -117,14 +117,14 @@ public class GarageController {
   }
 
   @GetMapping("/{id}/scanners")
-  public ResponseEntity<List<ScannerDto>> getMethodName(@PathVariable int id) {
+  public ResponseEntity<List<ScannerDto>> getScanners(@PathVariable int id) {
     var result = service.getScanners(id);
 
     return ResponseEntity.ok(result);
   }
 
   @PostMapping("/{id}/scanners")
-  public ResponseEntity<ScannerDto> getMethodName(
+  public ResponseEntity<ScannerDto> addScanner(
     @PathVariable int id,
     @RequestBody Map.Entry<String, ScannerType> type
   ) {

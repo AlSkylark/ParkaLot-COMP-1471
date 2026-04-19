@@ -1,0 +1,84 @@
+@startuml Make a Reservation - 3. Submit Form and Get Quote (Simplified)
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 1
+skinparam sequenceLifeLineBorderColor #555
+skinparam sequenceParticipantBorderThickness 2
+skinparam responseMessageBelowArrow true
+
+actor "User" as User
+
+box "Controllers" #Lavender
+  participant GarageController
+end box
+
+box "Services" #MistyRose
+  participant ContractService
+  participant ParkingSpaceService
+  participant SpaceReservationsService
+end box
+
+box "Repositories" #Wheat
+  participant "«Repository»" as Repo
+end box
+
+== 3. User fills form and submits ==
+
+User -> GarageController : POST /garages/{id}/reserve\n(ReservationRequest)
+activate GarageController
+
+GarageController -> ContractService : createQuote(garageId, request)
+activate ContractService
+
+ContractService -> ParkingSpaceService : CheckAvailabilityForGarage(garageId, spaceType, request)
+activate ParkingSpaceService
+ParkingSpaceService -> Repo : ParkingSpaceRepository::checkDayAvailability()\nor checkDateRangeAvailability()
+Repo --> ParkingSpaceService : ParkingAvailabilityDto
+
+alt Garage is FULL
+  ParkingSpaceService --> ContractService : GarageAvailability.FULL
+  deactivate ParkingSpaceService
+  ContractService --> GarageController : Optional.empty()
+  GarageController --> User : 400 Bad Request — "No availability for the selected dates"
+else Space available
+  ParkingSpaceService --> ContractService : GarageAvailability (not FULL)
+  deactivate ParkingSpaceService
+
+  ContractService -> Repo : CustomerRepository::findByEmail(request.email)
+  Repo --> ContractService : Optional<Customer>
+
+  alt Registered customer
+    note right of ContractService : Sets customer on Contract
+  else Guest user
+    note right of ContractService : Creates GuestData\nand stores as JSON on Contract
+  end
+
+  ContractService -> SpaceReservationsService : assignParkingSpace(garageId, request, hasCustomer)
+  activate SpaceReservationsService
+
+  SpaceReservationsService -> Repo : ParkingSpaceRepository::findAvailableSpace(garageId, spaceType, dates/times)
+  Repo --> SpaceReservationsService : ParkingSpace
+
+  SpaceReservationsService -> SpaceReservationsService : buildPriceType(startDate, endDate,\nstartTime, endTime, spaceType)
+  note right : Resolved via PriceBuilder\n(fluent builder internally)
+
+  opt Registered customer with car plate
+    SpaceReservationsService -> Repo : CarRepository::findByPlateno(carPlate)
+    Repo --> SpaceReservationsService : Car
+  end
+
+  SpaceReservationsService --> ContractService : SpaceReservation
+  deactivate SpaceReservationsService
+
+  ContractService -> Repo : ContractRepository::save(contract)
+  Repo --> ContractService : Contract (persisted)
+
+  ContractService --> GarageController : Optional<QuoteDto>
+  note right : Contract mapped to QuoteDto\ninternally via ContractMapper
+  deactivate ContractService
+
+  GarageController --> User : 200 OK — QuoteDto
+  deactivate GarageController
+end
+
+@enduml
