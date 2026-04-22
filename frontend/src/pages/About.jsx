@@ -1,6 +1,6 @@
 export default function About() {
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 mb-5">
             {/* HEADER */}
             <div className="text-center mb-5">
                 <h1 className="fw-bold">About ParkaLot</h1>
