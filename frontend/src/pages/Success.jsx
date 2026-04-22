@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import QRCode from "react-qr-code";
 import { useState } from "react";
 import { Card, Row, Col, Badge } from "react-bootstrap";
@@ -233,12 +233,12 @@ export default function Success() {
                                 >
                                     Print / Save
                                 </button>
-                                <a
-                                    href="/"
+                                <Link
+                                    to="/"
                                     className="btn btn-primary px-4 py-2 fw-semibold"
                                 >
                                     Back to Home
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </Card.Body>
